@@ -157,7 +157,7 @@
     <!-- RIGHT PANEL: ANALYTICS & GRID (7 COLS) -->
     <div class="col-span-12 lg:col-span-7 flex flex-col space-y-4 min-h-0">
       
-      <!-- TOP CHART: PIPELINE PIPELINE -->
+      <!-- TOP CHART: PIPELINE -->
       <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 h-36 flex flex-col">
         <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Stage-Gate Milestone Pipeline</h2>
         <div class="flex-1 relative">
@@ -204,11 +204,43 @@
     });
 
     function initMap() {
-      map = L.map('map').setView([38.5976, -80.4549], 7);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // 1. Dark Theme Layer (Default)
+      const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
         maxZoom: 19
-      }).addTo(map);
+      });
+
+      // 2. Esri Satellite Hybrid Layer (Aerial Imagery + Road Labels)
+      const esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+        maxZoom: 19
+      });
+      const esriLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19
+      });
+      const satelliteHybrid = L.layerGroup([esriImagery, esriLabels]);
+
+      // 3. Standard Street Map Layer
+      const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      });
+
+      // Initialize Leaflet Map
+      map = L.map('map', {
+        center: [38.5976, -80.4549],
+        zoom: 7,
+        layers: [streetLayer] // Sets Dark Theme as initial default
+      });
+
+      // Base Maps Control Box (Top Right Layer Switcher)
+      const baseMaps = {
+        "Dark Theme": darkLayer,
+        "Satellite Hybrid": satelliteHybrid,
+        "Street Map": streetLayer
+      };
+
+      L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
     }
 
     function initGrid() {
@@ -346,7 +378,6 @@
       window.requestAnimationFrame(step);
     }
 
-    // Dynamic Chart Updater based on Active Filtered Data
     function updatePipelineChart(data) {
       if (!pipelineChart) return;
 
@@ -374,12 +405,11 @@
 
       masterProjectData = DASHBOARD_DATA.projects || [];
       
-      // Populate AG Grid
       if (gridApi) {
         gridApi.setGridOption('rowData', masterProjectData);
       }
 
-      // Populate Program Type Dropdown with Trimmed & Uppercased Values
+      // Populate Program Type Dropdown
       const rawTypes = masterProjectData.map(p => 
         (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase()
       );
@@ -393,20 +423,60 @@
         });
       }
 
-      // Load GeoJSON vector shapes if available
+      // Load GeoJSON vector shapes with interactive click & styling
       if (DASHBOARD_DATA.geojson && DASHBOARD_DATA.geojson.features.length > 0) {
-        const layer = L.geoJSON(DASHBOARD_DATA.geojson, {
-          style: { color: '#38bdf8', weight: 4, opacity: 0.8 },
+        const geoLayer = L.geoJSON(DASHBOARD_DATA.geojson, {
+          style: { color: '#38bdf8', weight: 4, opacity: 0.85, fillColor: '#0284c7', fillOpacity: 0.35 },
+          pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 7,
+              fillColor: "#38bdf8",
+              color: "#ffffff",
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.8
+            });
+          },
           onEachFeature: function(feature, featureLayer) {
             const cleanNum = feature.properties.clean_num;
+            const cleanName = feature.properties.clean_name;
+
             if (cleanNum) kmlFeatureMap[cleanNum] = featureLayer;
+            if (cleanName) kmlFeatureMap[cleanName] = featureLayer;
+
+            // Click shape on map -> find matching project and open drawer
+            featureLayer.on('click', function() {
+              const matchedProj = masterProjectData.find(p => {
+                const pNum = (p.CLEAN_NUM || '').toUpperCase();
+                const pName = (p['PROJECT NAME'] || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                return (cleanNum && pNum.includes(cleanNum)) || (cleanName && pName.includes(cleanName));
+              });
+
+              if (matchedProj) {
+                onProjectRowClick(matchedProj);
+                if (gridApi) {
+                  gridApi.forEachNode(node => {
+                    if (node.data.CLEAN_NUM === matchedProj.CLEAN_NUM) {
+                      node.setSelected(true, true);
+                      gridApi.ensureNodeVisible(node);
+                    }
+                  });
+                }
+              }
+            });
           }
         }).addTo(map);
 
-        document.getElementById('map-feature-count').innerText = `${Object.keys(kmlFeatureMap).length} Map Vectors Loaded`;
+        // Auto-fit map viewport to show all loaded vector shapes
+        if (geoLayer.getBounds().isValid()) {
+          map.fitBounds(geoLayer.getBounds(), { padding: [20, 20] });
+        }
+
+        document.getElementById('map-feature-count').innerText = `${DASHBOARD_DATA.geojson.features.length} Map Vectors Loaded`;
+      } else {
+        document.getElementById('map-feature-count').innerText = `0 Map Vectors Loaded`;
       }
 
-      // Initial Chart & KPI Updates
       updatePipelineChart(masterProjectData);
       updateKPIs(masterProjectData);
     }
@@ -427,7 +497,6 @@
           (status === 'Active' && p.SOURCE_PM !== 'Completed') ||
           (status === 'Completed' && p.SOURCE_PM === 'Completed'));
         
-        // Flexible string matching for Program Type
         const projType = (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase();
         const matchesType = (selectedType === 'ALL' || projType === selectedType);
 
@@ -436,19 +505,24 @@
 
       if (gridApi) gridApi.setGridOption('rowData', filtered);
       
-      // Update Chart & KPIs with smooth animations
       updatePipelineChart(filtered);
       updateKPIs(filtered);
     }
 
     function onProjectRowClick(project) {
-      // Fly map to vector if available
-      const layer = kmlFeatureMap[project.CLEAN_NUM];
-      if (layer && layer.getBounds) {
-        map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.5 });
+      // Flexible matching for flying map to project shape
+      const pNum = (project.CLEAN_NUM || '').toUpperCase();
+      const pName = (project['PROJECT NAME'] || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      
+      const layer = kmlFeatureMap[pNum] || kmlFeatureMap[pName];
+      if (layer) {
+        if (layer.getBounds) {
+          map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.2 });
+        } else if (layer.getLatLng) {
+          map.flyTo(layer.getLatLng(), 15, { duration: 1.2 });
+        }
       }
 
-      // Populate Slide-Out Drawer
       document.getElementById('drawer-title').innerText = project['PROJECT NAME'] || 'Project Details';
       const consultant = (project.CONSULTANT && project.CONSULTANT !== 'NaN' && project.CONSULTANT !== 'null') ? project.CONSULTANT : 'Unassigned';
       const programNum = (project.PROGRAM_NUM_CLEAN && project.PROGRAM_NUM_CLEAN !== 'nan' && project.PROGRAM_NUM_CLEAN !== 'null') ? project.PROGRAM_NUM_CLEAN : 'N/A';
@@ -539,17 +613,14 @@
         if (p.SOURCE_PM === 'Completed') completed++; else active++;
       });
 
-      // Animate Financial KPIs ($ Millions)
       animateCounter('kpi-awarded', currentKpiValues.awarded, awarded, true);
       animateCounter('kpi-design-spent', currentKpiValues.designSpent, designSpent, true);
       animateCounter('kpi-const-spent', currentKpiValues.constSpent, constSpent, true);
 
-      // Animate Count KPIs (Integer Numbers)
       animateCounter('kpi-active-count', currentKpiValues.active, active, false);
       animateCounter('kpi-completed-count', currentKpiValues.completed, completed, false);
       animateCounter('kpi-total-count', currentKpiValues.total, data.length, false);
 
-      // Store state for next filter change
       currentKpiValues = { awarded, designSpent, constSpent, active, completed, total: data.length };
     }
   </script>
