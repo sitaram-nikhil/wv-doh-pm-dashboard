@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TA/RT Program Management Executive Command Center</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet CSS & JS (Interactive Mapping) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- AG Grid Community CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-alpine-dark.css">
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- AUTO-GENERATED DASHBOARD DATA SCRIPT -->
+  <script src="dashboard_data.js"></script>
+
+  <style>
+    body { height: 100vh; overflow: hidden; background-color: #0f172a; color: #f8fafc; }
+    #map { height: 100%; width: 100%; border-radius: 0.5rem; }
+    
+    /* FORCE AG GRID DARK THEME OVERRIDES */
+    .ag-theme-alpine-dark,
+    .ag-theme-alpine-dark .ag-root-wrapper,
+    .ag-theme-alpine-dark .ag-header,
+    .ag-theme-alpine-dark .ag-row,
+    .ag-theme-alpine-dark .ag-cell,
+    .ag-theme-alpine-dark .ag-paging-panel {
+      background-color: #0f172a !important;
+      color: #f8fafc !important;
+      border-color: #334155 !important;
+    }
+
+    .ag-theme-alpine-dark .ag-header-cell {
+      background-color: #1e293b !important;
+      color: #94a3b8 !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.05em !important;
+    }
+
+    .ag-theme-alpine-dark .ag-row-hover,
+    .ag-theme-alpine-dark .ag-row-selected {
+      background-color: #1e293b !important;
+    }
+
+    .ag-theme-alpine-dark .ag-pinned-left-header,
+    .ag-theme-alpine-dark .ag-pinned-left-cols-container .ag-cell {
+      background-color: #0f172a !important;
+      border-right: 1px solid #334155 !important;
+    }
+
+    .ag-row {
+      cursor: pointer;
+    }
+
+    #detail-drawer { transition: transform 0.3s ease-in-out; }
+  </style>
+</head>
+<body class="flex flex-col font-sans">
+
+  <!-- TOP NAVIGATION & GLOBAL CONTROLS BAR -->
+  <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div class="bg-blue-600 p-2 rounded-lg text-white font-bold text-lg">WV</div>
+      <div>
+        <h1 class="text-lg font-bold text-white tracking-wide">TA/RT Programs Dashboard</h1>
+        <p class="text-xs text-slate-400">WV DOT Project Management Command Center</p>
+      </div>
+    </div>
+
+    <!-- GLOBAL SEARCH BAR -->
+    <div class="flex-1 max-w-md relative">
+      <input type="text" id="global-search" oninput="onSearchInput()" 
+             placeholder="Search Project Name, Number, Program #, PM, County..." 
+             class="w-full bg-slate-800 border border-slate-700 text-slate-100 px-4 py-2 pl-10 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition">
+      <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="flex items-center space-x-3 text-sm">
+      <select id="filter-type" onchange="applyFilters()" class="bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg focus:outline-none">
+        <option value="ALL">All Program Types</option>
+      </select>
+
+      <select id="filter-pm" onchange="applyFilters()" class="bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg focus:outline-none">
+        <option value="ALL">All Managers</option>
+        <option value="Cameron">Cameron</option>
+        <option value="Jennifer">Jennifer</option>
+        <option value="Kyle">Kyle</option>
+        <option value="Kylena">Kylena</option>
+        <option value="Rhonda">Rhonda</option>
+        <option value="Sharonnia">Sharonnia</option>
+        <option value="Travis">Travis</option>
+      </select>
+
+      <select id="filter-status" onchange="applyFilters()" class="bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg focus:outline-none">
+        <option value="ALL">All Statuses</option>
+        <option value="Active">Active Projects</option>
+        <option value="Completed">Completed Projects</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- KPI RIBBON BAR -->
+  <section class="bg-slate-950 px-6 py-2 border-b border-slate-800 grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+      <span class="text-xs text-slate-400 uppercase tracking-wider block">Total Awarded</span>
+      <span id="kpi-awarded" class="text-lg font-extrabold text-blue-400">$0.00M</span>
+    </div>
+    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+      <span class="text-xs text-slate-400 uppercase tracking-wider block">Design Spent</span>
+      <span id="kpi-design-spent" class="text-lg font-extrabold text-emerald-400">$0.00M</span>
+    </div>
+    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+      <span class="text-xs text-slate-400 uppercase tracking-wider block">Construction Spent</span>
+      <span id="kpi-const-spent" class="text-lg font-extrabold text-emerald-400">$0.00M</span>
+    </div>
+    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+      <span class="text-xs text-slate-400 uppercase tracking-wider block">Active Projects</span>
+      <span id="kpi-active-count" class="text-lg font-extrabold text-amber-400">0</span>
+    </div>
+    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+      <span class="text-xs text-slate-400 uppercase tracking-wider block">Completed Projects</span>
+      <span id="kpi-completed-count" class="text-lg font-extrabold text-green-400">0</span>
+    </div>
+    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+      <span class="text-xs text-slate-400 uppercase tracking-wider block">Total Compiled</span>
+      <span id="kpi-total-count" class="text-lg font-extrabold text-teal-400">0</span>
+    </div>
+  </section>
+
+  <!-- MAIN SINGLE-SCREEN DASHBOARD BODY -->
+  <main class="flex-1 grid grid-cols-12 gap-4 p-4 min-h-0 relative">
+    
+    <!-- LEFT PANEL: MAP (5 COLS) -->
+    <div class="col-span-12 lg:col-span-5 bg-slate-900 p-2 rounded-lg border border-slate-800 flex flex-col">
+      <div class="flex justify-between items-center mb-2 px-1">
+        <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Geographic Project Mapping</h2>
+        <span class="text-xs text-slate-500" id="map-feature-count">Table Mode Active</span>
+      </div>
+      <div class="flex-1 relative">
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: ANALYTICS & GRID (7 COLS) -->
+    <div class="col-span-12 lg:col-span-7 flex flex-col space-y-4 min-h-0">
+      
+      <!-- TOP CHART: PIPELINE PIPELINE -->
+      <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 h-36 flex flex-col">
+        <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Stage-Gate Milestone Pipeline</h2>
+        <div class="flex-1 relative">
+          <canvas id="pipelineChart"></canvas>
+        </div>
+      </div>
+
+      <!-- BOTTOM DATA GRID: REFINED AG GRID TABLE -->
+      <div class="flex-1 bg-slate-900 p-3 rounded-lg border border-slate-800 flex flex-col min-h-0">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Active Portfolio Grid</h2>
+          <span class="text-xs text-slate-500">Click any row to inspect details</span>
+        </div>
+        <div id="ag-grid-container" class="ag-theme-alpine-dark flex-1 w-full rounded-lg overflow-hidden"></div>
+      </div>
+    </div>
+
+    <!-- SLIDE-OUT PROJECT DETAIL DRAWER -->
+    <aside id="detail-drawer" class="absolute top-0 right-0 h-full w-full max-w-lg bg-slate-900 border-l border-slate-700 shadow-2xl z-50 transform translate-x-full p-6 overflow-y-auto flex flex-col">
+      <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white" id="drawer-title">Project Details</h3>
+        <button onclick="closeDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="flex-1 py-4 space-y-6 text-sm" id="drawer-content">
+      </div>
+    </aside>
+  </main>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    let map, gridApi, pipelineChart;
+    let masterProjectData = [];
+    let kmlFeatureMap = {};
+    let currentKpiValues = { awarded: 0, designSpent: 0, constSpent: 0, active: 0, completed: 0, total: 0 };
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initMap();
+      initGrid();
+      initChart();
+      loadDashboardData();
+    });
+
+    function initMap() {
+      map = L.map('map').setView([38.5976, -80.4549], 7);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 19
+      }).addTo(map);
+    }
+
+    function initGrid() {
+      const gridDiv = document.querySelector('#ag-grid-container');
+      
+      const columnDefs = [
+        { 
+          headerName: "State Project #", 
+          field: "CLEAN_NUM", 
+          width: 150, 
+          pinned: 'left',
+          cellRenderer: params => params.value ? `<span class="font-mono text-blue-400 font-semibold">${params.value}</span>` : '<span class="text-slate-600">—</span>'
+        },
+        { 
+          headerName: "Program #", 
+          field: "PROGRAM_NUM_CLEAN", 
+          width: 125,
+          cellRenderer: params => (params.value && params.value !== 'nan' && params.value !== 'null') 
+            ? `<span class="font-mono text-slate-300">${params.value}</span>` 
+            : '<span class="text-slate-600">—</span>'
+        },
+        { 
+          headerName: "Project Name", 
+          field: "PROJECT NAME", 
+          width: 210,
+          cellRenderer: params => `<span class="font-medium text-slate-100">${params.value || 'Untitled Project'}</span>`
+        },
+        { 
+          headerName: "PM", 
+          field: "SOURCE_PM", 
+          width: 100,
+          cellRenderer: params => `<span class="px-2 py-0.5 text-xs rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-medium">${params.value || 'Unassigned'}</span>`
+        },
+        { headerName: "County", field: "COUNTY", width: 100 },
+        { 
+          headerName: "Award", 
+          field: "AWARD_CLEAN", 
+          width: 110, 
+          cellRenderer: params => `<span class="font-mono text-emerald-400 font-bold">${formatCurrency(params.value)}</span>`
+        },
+        { 
+          headerName: "Progress", 
+          field: "PROJECT COMPLETION PERCENTAGE", 
+          width: 140,
+          cellRenderer: params => {
+            const rawVal = (params.value || '0').toString().replace(/%/g, '').trim();
+            const val = Math.min(100, Math.max(0, parseFloat(rawVal) || 0));
+            const barColor = val === 100 ? 'bg-emerald-500' : val > 50 ? 'bg-blue-500' : 'bg-amber-500';
+            
+            return `
+              <div class="flex items-center space-x-2 w-full mt-2.5">
+                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                  <div class="${barColor} h-2 rounded-full transition-all duration-300" style="width: ${val}%"></div>
+                </div>
+                <span class="text-[11px] text-slate-400 font-mono w-8 text-right">${val}%</span>
+              </div>`;
+          }
+        },
+        { 
+          headerName: "Consultant", 
+          field: "CONSULTANT", 
+          width: 130,
+          cellRenderer: params => (params.value && params.value !== 'NaN' && params.value !== 'null') 
+            ? `<span class="text-slate-300">${params.value}</span>` 
+            : '<span class="text-slate-600">—</span>'
+        }
+      ];
+
+      const gridOptions = {
+        columnDefs: columnDefs,
+        rowData: [],
+        rowSelection: 'single',
+        animateRows: true,
+        rowHeight: 38,
+        headerHeight: 36,
+        onRowClicked: function(event) {
+          onProjectRowClick(event.data);
+        }
+      };
+
+      gridApi = agGrid.createGrid(gridDiv, gridOptions);
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('pipelineChart').getContext('2d');
+      pipelineChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Design NTP', 'PFR Review', 'FFR Review', 'PS&E Clearance', 'Construction NTP'],
+          datasets: [{
+            label: 'Projects in Phase',
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: ['#3b82f6', '#0ea5e9', '#06b6d4', '#10b981', '#22c55e'],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 750,
+            easing: 'easeOutQuart'
+          },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#334155' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // Smooth Number Counting Engine (requestAnimationFrame)
+    function animateCounter(elementId, startVal, endVal, isCurrency = false, duration = 750) {
+      const obj = document.getElementById(elementId);
+      if (!obj) return;
+
+      let startTime = null;
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+        const currentVal = startVal + (endVal - startVal) * easeProgress;
+
+        if (isCurrency) {
+          obj.innerText = `$${(currentVal / 1e6).toFixed(2)}M`;
+        } else {
+          obj.innerText = Math.round(currentVal).toLocaleString();
+        }
+
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      }
+      window.requestAnimationFrame(step);
+    }
+
+    // Dynamic Chart Updater based on Active Filtered Data
+    function updatePipelineChart(data) {
+      if (!pipelineChart) return;
+
+      const counts = [0, 0, 0, 0, 0];
+      data.forEach(p => {
+        const rawVal = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
+        const pct = parseFloat(rawVal) || 0;
+
+        if (pct <= 20) counts[0]++;        // Design NTP
+        else if (pct <= 50) counts[1]++;   // PFR Review
+        else if (pct <= 75) counts[2]++;   // FFR Review
+        else if (pct < 100) counts[3]++;   // PS&E Clearance
+        else counts[4]++;                  // Construction NTP
+      });
+
+      pipelineChart.data.datasets[0].data = counts;
+      pipelineChart.update();
+    }
+
+    function loadDashboardData() {
+      if (typeof DASHBOARD_DATA === 'undefined') {
+        console.error("DASHBOARD_DATA is missing. Run auto_sync.py first.");
+        return;
+      }
+
+      masterProjectData = DASHBOARD_DATA.projects || [];
+      
+      // Populate AG Grid
+      if (gridApi) {
+        gridApi.setGridOption('rowData', masterProjectData);
+      }
+
+      // Populate Program Type Dropdown with Trimmed & Uppercased Values
+      const rawTypes = masterProjectData.map(p => 
+        (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase()
+      );
+      const types = [...new Set(rawTypes)].filter(t => t && t !== 'NAN' && t !== 'NULL' && t !== 'UNASSIGNED').sort();
+      
+      const typeSelect = document.getElementById('filter-type');
+      if (typeSelect) {
+        typeSelect.innerHTML = '<option value="ALL">All Program Types</option>';
+        types.forEach(t => {
+          typeSelect.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+      }
+
+      // Load GeoJSON vector shapes if available
+      if (DASHBOARD_DATA.geojson && DASHBOARD_DATA.geojson.features.length > 0) {
+        const layer = L.geoJSON(DASHBOARD_DATA.geojson, {
+          style: { color: '#38bdf8', weight: 4, opacity: 0.8 },
+          onEachFeature: function(feature, featureLayer) {
+            const cleanNum = feature.properties.clean_num;
+            if (cleanNum) kmlFeatureMap[cleanNum] = featureLayer;
+          }
+        }).addTo(map);
+
+        document.getElementById('map-feature-count').innerText = `${Object.keys(kmlFeatureMap).length} Map Vectors Loaded`;
+      }
+
+      // Initial Chart & KPI Updates
+      updatePipelineChart(masterProjectData);
+      updateKPIs(masterProjectData);
+    }
+
+    function onSearchInput() {
+      const query = document.getElementById('global-search').value;
+      if (gridApi) gridApi.setGridOption('quickFilterText', query);
+    }
+
+    function applyFilters() {
+      const pm = document.getElementById('filter-pm').value;
+      const status = document.getElementById('filter-status').value;
+      const selectedType = document.getElementById('filter-type') ? document.getElementById('filter-type').value.trim().toUpperCase() : 'ALL';
+
+      let filtered = masterProjectData.filter(p => {
+        const matchesPM = (pm === 'ALL' || p.SOURCE_PM === pm);
+        const matchesStatus = (status === 'ALL' || 
+          (status === 'Active' && p.SOURCE_PM !== 'Completed') ||
+          (status === 'Completed' && p.SOURCE_PM === 'Completed'));
+        
+        // Flexible string matching for Program Type
+        const projType = (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase();
+        const matchesType = (selectedType === 'ALL' || projType === selectedType);
+
+        return matchesPM && matchesStatus && matchesType;
+      });
+
+      if (gridApi) gridApi.setGridOption('rowData', filtered);
+      
+      // Update Chart & KPIs with smooth animations
+      updatePipelineChart(filtered);
+      updateKPIs(filtered);
+    }
+
+    function onProjectRowClick(project) {
+      // Fly map to vector if available
+      const layer = kmlFeatureMap[project.CLEAN_NUM];
+      if (layer && layer.getBounds) {
+        map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.5 });
+      }
+
+      // Populate Slide-Out Drawer
+      document.getElementById('drawer-title').innerText = project['PROJECT NAME'] || 'Project Details';
+      const consultant = (project.CONSULTANT && project.CONSULTANT !== 'NaN' && project.CONSULTANT !== 'null') ? project.CONSULTANT : 'Unassigned';
+      const programNum = (project.PROGRAM_NUM_CLEAN && project.PROGRAM_NUM_CLEAN !== 'nan' && project.PROGRAM_NUM_CLEAN !== 'null') ? project.PROGRAM_NUM_CLEAN : 'N/A';
+      const cleanPct = (project['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
+
+      const content = `
+        <div class="bg-slate-800/80 p-3 rounded border border-slate-700 grid grid-cols-2 gap-2">
+          <div>
+            <div class="text-xs text-slate-400">State Project Number</div>
+            <div class="font-mono text-blue-400 font-bold">${project['STATE PROJECT NUMBER'] || 'N/A'}</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Program Number</div>
+            <div class="font-mono text-slate-200 font-bold">${programNum}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-800/50 p-3 rounded">
+            <span class="text-xs text-slate-400 block">Project Manager</span>
+            <span class="font-bold text-white">${project.SOURCE_PM || 'Unassigned'}</span>
+          </div>
+          <div class="bg-slate-800/50 p-3 rounded">
+            <span class="text-xs text-slate-400 block">County</span>
+            <span class="font-bold text-white">${project.COUNTY || 'N/A'}</span>
+          </div>
+          <div class="bg-slate-800/50 p-3 rounded">
+            <span class="text-xs text-slate-400 block">Consultant</span>
+            <span class="font-bold text-slate-200">${consultant}</span>
+          </div>
+          <div class="bg-slate-800/50 p-3 rounded">
+            <span class="text-xs text-slate-400 block">% Complete</span>
+            <span class="font-bold text-amber-400">${cleanPct}%</span>
+          </div>
+        </div>
+
+        <!-- FINANCIAL OVERVIEW BLOCK WITH SUPPLEMENTAL & TOTAL VALUE -->
+        <div class="bg-slate-800/50 p-3 rounded space-y-3">
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700/60 pb-1">Financial Breakdown</h4>
+          
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <span class="text-slate-400 block">Award Value:</span>
+              <span class="font-mono text-emerald-400 font-bold">${formatCurrency(project.AWARD_CLEAN)}</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block">Supplemental:</span>
+              <span class="font-mono text-blue-400 font-bold">${formatCurrency(project.SUPPLEMENTAL_CLEAN)}</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 p-2 rounded border border-slate-700/50 flex justify-between items-center text-xs">
+            <span class="text-slate-300 font-semibold">Total Value (Award + Supp):</span>
+            <span class="font-mono text-teal-300 font-extrabold text-sm">${formatCurrency(project.TOTAL_VALUE_CLEAN)}</span>
+          </div>
+
+          <div class="border-t border-slate-700/40 pt-2 space-y-1 text-xs">
+            <div class="flex justify-between"><span>Design Spend:</span><span class="font-mono text-slate-300">${formatCurrency(project.SPENT_DESIGN_CLEAN)}</span></div>
+            <div class="flex justify-between"><span>Construction Spend:</span><span class="font-mono text-slate-300">${formatCurrency(project.SPENT_CONST_CLEAN)}</span></div>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/50 p-3 rounded space-y-2">
+          <h4 class="text-xs font-bold text-slate-300 uppercase">Latest Status Update</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">${project['STATUS UPDATE'] || project['COMMENTS'] || 'No status updates logged.'}</p>
+        </div>
+      `;
+
+      document.getElementById('drawer-content').innerHTML = content;
+      document.getElementById('detail-drawer').classList.remove('translate-x-full');
+    }
+
+    function closeDrawer() {
+      document.getElementById('detail-drawer').classList.add('translate-x-full');
+    }
+
+    function formatCurrency(val) {
+      const num = parseFloat(val) || 0;
+      return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updateKPIs(data) {
+      let awarded = 0, designSpent = 0, constSpent = 0, active = 0, completed = 0;
+      data.forEach(p => {
+        awarded += p.AWARD_CLEAN || 0;
+        designSpent += p.SPENT_DESIGN_CLEAN || 0;
+        constSpent += p.SPENT_CONST_CLEAN || 0;
+        if (p.SOURCE_PM === 'Completed') completed++; else active++;
+      });
+
+      // Animate Financial KPIs ($ Millions)
+      animateCounter('kpi-awarded', currentKpiValues.awarded, awarded, true);
+      animateCounter('kpi-design-spent', currentKpiValues.designSpent, designSpent, true);
+      animateCounter('kpi-const-spent', currentKpiValues.constSpent, constSpent, true);
+
+      // Animate Count KPIs (Integer Numbers)
+      animateCounter('kpi-active-count', currentKpiValues.active, active, false);
+      animateCounter('kpi-completed-count', currentKpiValues.completed, completed, false);
+      animateCounter('kpi-total-count', currentKpiValues.total, data.length, false);
+
+      // Store state for next filter change
+      currentKpiValues = { awarded, designSpent, constSpent, active, completed, total: data.length };
+    }
+  </script>
+</body>
+</html>
