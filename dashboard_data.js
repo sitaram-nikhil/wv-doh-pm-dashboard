@@ -1082,7 +1082,7 @@ const DASHBOARD_DATA = {
       "CONSTRUCTION NOTICE TO PROCEED": NaN,
       "CONSTRUCTION COMPLETION DATE": NaN,
       "PROJECT COMPLETION PERCENTAGE": NaN,
-      "STATUS UPDATE": " Fully executed agreement. Project has been authorized in the HUB. Needs on-call consult assigned. ",
+      "STATUS UPDATE": " Fully executed agreement. Project has been authorized in the HUB. Needs on-call consult assigned. monthly call 8/17/26.  Mayor was thinking there was a set of plans for project.  We are going to verify and get back with her before we schedule a scoping meeting. ",
       "PROJECT COMPLETE?": "No",
       "PROJECT MANAGER": "Ballard",
       "Unnamed: 28": NaN,
