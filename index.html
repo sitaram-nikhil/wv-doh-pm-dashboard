@@ -80,6 +80,8 @@
     }
 
     /* FIX 1: AG GRID CANVAS BACKGROUND & THEME OVERRIDES */
+    #ag-grid-container,
+    #ag-grid-container *,
     .ag-theme-alpine-dark,
     .ag-theme-alpine-dark .ag-root-wrapper,
     .ag-theme-alpine-dark .ag-root-wrapper-body,
@@ -89,7 +91,11 @@
     .ag-theme-alpine-dark .ag-center-cols-container,
     .ag-theme-alpine-dark .ag-center-cols-clipper,
     .ag-theme-alpine-dark .ag-pinned-left-cols-viewport,
-    .ag-theme-alpine-dark .ag-pinned-left-cols-container {
+    .ag-theme-alpine-dark .ag-pinned-left-cols-container,
+    .ag-theme-alpine-dark .ag-overlay,
+    .ag-theme-alpine-dark .ag-overlay-panel,
+    .ag-theme-alpine-dark .ag-overlay-wrapper,
+    .ag-theme-alpine-dark .ag-overlay-loading-wrapper {
       background-color: #090d16 !important;
       background: #090d16 !important;
     }
@@ -547,7 +553,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 12, bottom: 4, left: 4, right: 8 } },
+          layout: { padding: { top: 12, bottom: 4, left: 18, right: 8 } },
           plugins: { 
             legend: { display: false },
             tooltip: {
