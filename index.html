@@ -17,11 +17,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <!-- AG Grid Community CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
-  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-alpine-dark.css">
-  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
-  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -79,136 +74,31 @@
       box-shadow: 0 0 8px rgba(245, 158, 11, 0.9); 
     }
 
-    /* FIX 1: AG GRID CANVAS BACKGROUND & THEME OVERRIDES */
-    #ag-grid-container,
-    #ag-grid-container *,
-    .ag-theme-alpine-dark,
-    .ag-theme-alpine-dark .ag-root-wrapper,
-    .ag-theme-alpine-dark .ag-root-wrapper-body,
-    .ag-theme-alpine-dark .ag-body-viewport,
-    .ag-theme-alpine-dark .ag-body-horizontal-scroll-viewport,
-    .ag-theme-alpine-dark .ag-center-cols-viewport,
-    .ag-theme-alpine-dark .ag-center-cols-container,
-    .ag-theme-alpine-dark .ag-center-cols-clipper,
-    .ag-theme-alpine-dark .ag-pinned-left-cols-viewport,
-    .ag-theme-alpine-dark .ag-pinned-left-cols-container,
-    .ag-theme-alpine-dark .ag-overlay,
-    .ag-theme-alpine-dark .ag-overlay-panel,
-    .ag-theme-alpine-dark .ag-overlay-wrapper,
-    .ag-theme-alpine-dark .ag-overlay-loading-wrapper {
-      background-color: #090d16 !important;
-      background: #090d16 !important;
-    }
-
-    .ag-theme-alpine-dark {
-      --ag-background-color: #090d16 !important;
-      --ag-header-background-color: #1e293b !important;
-      --ag-header-foreground-color: #cbd5e1 !important;
-      --ag-secondary-foreground-color: #94a3b8 !important;
-      --ag-row-border-color: transparent !important;
-      --ag-border-color: rgba(255, 255, 255, 0.08) !important;
-      --ag-selected-row-background-color: rgba(30, 58, 138, 0.6) !important;
-      --ag-row-hover-background-color: #1e293b !important;
-      --ag-pinned-column-background-color: #090d16 !important;
-      --ag-odd-row-background-color: transparent !important;
-    }
-
-    .ag-theme-alpine-dark .ag-header {
-      background-color: #1e293b !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-      border-radius: 0.75rem 0.75rem 0 0 !important;
-    }
-
-    .ag-theme-alpine-dark .ag-header-cell,
-    .ag-theme-alpine-dark .ag-pinned-left-header {
-      background-color: #1e293b !important;
-      color: #cbd5e1 !important;
-      font-weight: 700 !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.05em !important;
-      font-size: 0.68rem !important;
-    }
-
-    /* FIX 2: SOLID FLOATING CARD ROWS WITH HIGH CONTRAST */
-    .ag-theme-alpine-dark .ag-row {
-      background: #0f172a !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      border-radius: 0.75rem !important;
-      height: 44px !important;
-      margin-top: 4px !important;
-      margin-bottom: 4px !important;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-
-    .ag-theme-alpine-dark .ag-row-hover {
-      background: #1e293b !important;
-      border-color: rgba(56, 189, 248, 0.5) !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
-    }
-
-    .ag-theme-alpine-dark .ag-row-selected {
-      background: rgba(30, 58, 138, 0.6) !important;
-      border-color: #38bdf8 !important;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.3) !important;
-    }
-
-    .ag-theme-alpine-dark .ag-cell {
-      border: none !important;
-      color: #f8fafc !important;
-      display: flex;
-      align-items: center;
-    }
-
-    .ag-theme-alpine-dark .ag-pinned-left-cols-container .ag-cell {
-      background-color: #0f172a !important;
-      border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .ag-theme-alpine-dark .ag-row-selected .ag-cell {
-      background-color: transparent !important;
-    }
-
-    /* FIX 3: FORCED DARK SCROLLBARS FOR AG GRID */
-    .ag-theme-alpine-dark ::-webkit-scrollbar,
-    .ag-body-viewport::-webkit-scrollbar,
-    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar,
+    /* FORCED DARK SCROLLBARS */
+    ::-webkit-scrollbar,
     .custom-scrollbar::-webkit-scrollbar {
       width: 8px !important;
       height: 8px !important;
       background-color: #090d16 !important;
     }
 
-    .ag-theme-alpine-dark ::-webkit-scrollbar-track,
-    .ag-body-viewport::-webkit-scrollbar-track,
-    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-track,
     .custom-scrollbar::-webkit-scrollbar-track {
       background: #090d16 !important;
       border-radius: 8px !important;
     }
 
-    .ag-theme-alpine-dark ::-webkit-scrollbar-thumb,
-    .ag-body-viewport::-webkit-scrollbar-thumb,
-    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb,
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: #334155 !important;
       border-radius: 8px !important;
       border: 2px solid #090d16 !important;
     }
 
-    .ag-theme-alpine-dark ::-webkit-scrollbar-thumb:hover,
-    .ag-body-viewport::-webkit-scrollbar-thumb:hover,
-    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-thumb:hover,
+    ::-webkit-scrollbar-thumb:hover,
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #475569 !important;
     }
-
-    .ag-body-viewport,
-    .ag-body-horizontal-scroll-viewport {
-      scrollbar-color: #334155 #090d16 !important;
-      scrollbar-width: thin !important;
-    }
-
-    .ag-row { cursor: pointer; }
 
     #detail-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
   </style>
@@ -350,9 +240,23 @@
           <span class="text-[11px] text-slate-400 font-medium">Click any row or card to inspect details</span>
         </div>
 
-        <!-- VIEW 1: AG GRID TABLE -->
+        <!-- VIEW 1: NATIVE TAILWIND TABLE -->
         <div id="grid-view-panel" class="flex-1 w-full h-full min-h-0">
-          <div id="ag-grid-container" class="ag-theme-alpine-dark w-full h-full rounded-xl overflow-hidden"></div>
+          <div class="w-full h-full overflow-y-auto custom-scrollbar pr-1 flex flex-col space-y-2">
+            <!-- Sticky Table Header -->
+            <div class="grid grid-cols-12 gap-2 px-4 py-2.5 bg-slate-800/95 rounded-xl text-[11px] font-bold text-slate-300 uppercase tracking-wider sticky top-0 z-10 border border-slate-700/80 backdrop-blur-md">
+              <div class="col-span-2">State Project #</div>
+              <div class="col-span-1">Program #</div>
+              <div class="col-span-3">Project Name</div>
+              <div class="col-span-1">PM</div>
+              <div class="col-span-1">County</div>
+              <div class="col-span-1">Award</div>
+              <div class="col-span-1">Consultant</div>
+              <div class="col-span-2">Progress</div>
+            </div>
+            <!-- Dynamic Native Table Rows Container -->
+            <div id="native-table-rows" class="space-y-1.5 flex-1"></div>
+          </div>
         </div>
 
         <!-- VIEW 2: EXECUTIVE CARD GRID -->
@@ -380,17 +284,16 @@
 
   <!-- JAVASCRIPT APPLICATION LOGIC -->
   <script>
-    let map, gridApi, pipelineChart;
+    let map, pipelineChart;
     let masterProjectData = [];
     let currentFilteredData = [];
     let kmlFeatureMap = {};
     let currentViewMode = 'grid';
-    let selectedNode = null;
+    let selectedProjectNum = null;
     let currentKpiValues = { awarded: 0, totalValue: 0, totalSupp: 0, active: 0, completed: 0, total: 0 };
 
     document.addEventListener("DOMContentLoaded", function() {
       initMap();
-      initGrid();
       initChart();
       loadDashboardData();
 
@@ -436,107 +339,6 @@
       L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
     }
 
-    function initGrid() {
-      const gridDiv = document.querySelector('#ag-grid-container');
-      
-      const columnDefs = [
-        { 
-          headerName: "State Project #", 
-          field: "CLEAN_NUM", 
-          width: 155, 
-          pinned: 'left',
-          cellRenderer: params => params.value ? `<span class="font-mono text-blue-400 font-bold text-xs bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">${params.value}</span>` : '<span class="text-slate-600">—</span>'
-        },
-        /* FIX 4: HIGH-CONTRAST PROGRAM # TEXT */
-        { 
-          headerName: "Program #", 
-          field: "PROGRAM_NUM_CLEAN", 
-          width: 125,
-          cellRenderer: params => {
-            let val = (params.value || '').toString().trim();
-            if (val.endsWith('.0')) val = val.slice(0, -2);
-            return (val && val !== 'nan' && val !== 'null' && val !== 'N/A') 
-              ? `<span class="font-mono text-slate-200 font-bold text-xs">${val}</span>` 
-              : '<span class="text-slate-500">—</span>';
-          }
-        },
-        { 
-          headerName: "Project Name", 
-          field: "PROJECT NAME", 
-          width: 220,
-          cellRenderer: params => `<span class="font-bold text-slate-100 text-xs line-clamp-1">${params.value || 'Untitled Project'}</span>`
-        },
-        { 
-          headerName: "PM", 
-          field: "SOURCE_PM", 
-          width: 105,
-          cellRenderer: params => `<span class="px-2.5 py-0.5 text-[11px] rounded-full bg-slate-800/90 border border-slate-700/80 text-slate-200 font-semibold">${params.value || 'Unassigned'}</span>`
-        },
-        { 
-          headerName: "County", 
-          field: "COUNTY", 
-          width: 105,
-          cellRenderer: params => `<span class="text-slate-200 text-xs font-semibold">${params.value || 'N/A'}</span>`
-        },
-        { 
-          headerName: "Award", 
-          field: "AWARD_CLEAN", 
-          width: 115, 
-          cellRenderer: params => `<span class="font-mono text-emerald-400 font-bold text-xs">${formatCurrency(params.value)}</span>`
-        },
-        { 
-          headerName: "Progress", 
-          field: "PROJECT COMPLETION PERCENTAGE", 
-          width: 155,
-          cellRenderer: params => {
-            const rawVal = (params.value || '0').toString().replace(/%/g, '').trim();
-            const val = Math.min(100, Math.max(0, parseFloat(rawVal) || 0));
-            
-            let ledClass = 'led-amber';
-            let barColor = 'bg-amber-500';
-            if (val === 100) { ledClass = 'led-green'; barColor = 'bg-emerald-500'; }
-            else if (val > 50) { ledClass = 'led-blue'; barColor = 'bg-blue-500'; }
-
-            return `
-              <div class="flex items-center space-x-2 w-full">
-                <span class="led-dot ${ledClass}"></span>
-                <div class="w-full bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/60">
-                  <div class="${barColor} h-1.5 rounded-full transition-all duration-300" style="width: ${val}%"></div>
-                </div>
-                <span class="text-[11px] text-slate-200 font-mono font-bold w-8 text-right">${val}%</span>
-              </div>`;
-          }
-        },
-        { 
-          headerName: "Consultant", 
-          field: "CONSULTANT", 
-          width: 130,
-          cellRenderer: params => (params.value && params.value !== 'NaN' && params.value !== 'null') 
-            ? `<span class="text-slate-200 text-xs font-medium">${params.value}</span>` 
-            : '<span class="text-slate-500">—</span>'
-        }
-      ];
-
-      const gridOptions = {
-        columnDefs: columnDefs,
-        rowData: [],
-        rowSelection: 'single',
-        animateRows: true,
-        rowHeight: 52,
-        headerHeight: 36,
-        onRowClicked: function(event) {
-          if (selectedNode === event.node) {
-            closeDrawer();
-          } else {
-            selectedNode = event.node;
-            onProjectRowClick(event.data);
-          }
-        }
-      };
-
-      gridApi = agGrid.createGrid(gridDiv, gridOptions);
-    }
-
     function initChart() {
       const ctx = document.getElementById('pipelineChart').getContext('2d');
       pipelineChart = new Chart(ctx, {
@@ -572,6 +374,7 @@
               grid: { display: false } 
             },
             y: { 
+              afterFit: (scale) => { scale.width = 38; },
               ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 10 }, precision: 0 }, 
               grid: { color: 'rgba(51, 65, 85, 0.3)' }, 
               beginAtZero: true 
@@ -579,6 +382,77 @@
           }
         }
       });
+    }
+
+    function renderNativeTable(data) {
+      const rowsContainer = document.getElementById('native-table-rows');
+      if (!rowsContainer) return;
+
+      if (!data || data.length === 0) {
+        rowsContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs font-semibold">No matching project records found.</div>`;
+        return;
+      }
+
+      rowsContainer.innerHTML = data.map(p => {
+        const cleanNum = p.CLEAN_NUM || '';
+        const name = p['PROJECT NAME'] || 'Untitled Project';
+        let prog = (p.PROGRAM_NUM_CLEAN && p.PROGRAM_NUM_CLEAN !== 'nan' && p.PROGRAM_NUM_CLEAN !== 'null') ? p.PROGRAM_NUM_CLEAN.toString().trim() : '—';
+        if (prog.endsWith('.0')) prog = prog.slice(0, -2);
+
+        const pm = p.SOURCE_PM || 'Unassigned';
+        const county = p.COUNTY || 'N/A';
+        const award = formatCurrency(p.AWARD_CLEAN);
+        const consultant = (p.CONSULTANT && p.CONSULTANT !== 'NaN' && p.CONSULTANT !== 'null') ? p.CONSULTANT : '—';
+
+        const rawPct = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
+        const pct = Math.min(100, Math.max(0, parseFloat(rawPct) || 0));
+
+        let ledClass = 'led-amber', barColor = 'bg-amber-500';
+        if (pct === 100) { ledClass = 'led-green'; barColor = 'bg-emerald-500'; }
+        else if (pct > 50) { ledClass = 'led-blue'; barColor = 'bg-blue-500'; }
+
+        const isSelected = selectedProjectNum === cleanNum;
+        const rowBg = isSelected 
+          ? 'bg-blue-900/40 border-blue-500 shadow-md shadow-blue-500/10 ring-1 ring-blue-500/40' 
+          : 'bg-slate-900/80 hover:bg-slate-800/90 border-slate-800/80 hover:border-slate-700';
+
+        return `
+          <div onclick="onNativeRowClick('${cleanNum}')" 
+               class="grid grid-cols-12 gap-2 px-4 py-2.5 rounded-xl border items-center text-xs text-slate-200 transition-all cursor-pointer ${rowBg}">
+            <div class="col-span-2">
+              <span class="font-mono text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">${cleanNum || '—'}</span>
+            </div>
+            <div class="col-span-1 font-mono text-slate-300 font-bold truncate">${prog}</div>
+            <div class="col-span-3 font-bold text-slate-100 truncate">${name}</div>
+            <div class="col-span-1">
+              <span class="px-2 py-0.5 bg-slate-800 border border-slate-700/80 rounded-full text-[10px] text-slate-300 font-semibold">${pm}</span>
+            </div>
+            <div class="col-span-1 text-slate-300 font-semibold truncate">${county}</div>
+            <div class="col-span-1 font-mono text-emerald-400 font-bold">${award}</div>
+            <div class="col-span-1 text-slate-300 font-medium truncate">${consultant}</div>
+            <div class="col-span-2 flex items-center space-x-2">
+              <span class="led-dot ${ledClass}"></span>
+              <div class="w-full bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/60">
+                <div class="${barColor} h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+              <span class="font-mono font-bold text-[11px] text-slate-200 w-8 text-right">${pct}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onNativeRowClick(cleanNum) {
+      if (selectedProjectNum === cleanNum) {
+        closeDrawer();
+        return;
+      }
+      selectedProjectNum = cleanNum;
+      const project = masterProjectData.find(p => p.CLEAN_NUM === cleanNum);
+      if (project) {
+        onProjectRowClick(project);
+        renderNativeTable(currentFilteredData);
+      }
     }
 
     function switchView(mode) {
@@ -595,6 +469,7 @@
         panelGrid.classList.remove('hidden');
         panelCards.classList.add('hidden');
         title.innerText = "Active Portfolio Grid";
+        renderNativeTable(currentFilteredData);
       } else {
         btnCards.className = "px-3 py-1.5 rounded-lg font-bold transition-all bg-blue-600 text-white shadow-md";
         btnGrid.className = "px-3 py-1.5 rounded-lg font-bold transition-all text-slate-400 hover:text-white";
@@ -685,6 +560,7 @@
     function onProjectCardClick(cleanNum) {
       const proj = masterProjectData.find(p => p.CLEAN_NUM === cleanNum);
       if (proj) {
+        selectedProjectNum = cleanNum;
         onProjectRowClick(proj);
       }
     }
@@ -741,9 +617,7 @@
       masterProjectData = DASHBOARD_DATA.projects || [];
       currentFilteredData = masterProjectData;
 
-      if (gridApi) {
-        gridApi.setGridOption('rowData', masterProjectData);
-      }
+      renderNativeTable(masterProjectData);
 
       const rawTypes = masterProjectData.map(p => 
         (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase()
@@ -796,16 +670,9 @@
               });
 
               if (matchedProj) {
+                selectedProjectNum = matchedProj.CLEAN_NUM;
                 onProjectRowClick(matchedProj);
-                if (gridApi) {
-                  gridApi.forEachNode(node => {
-                    if (node.data.CLEAN_NUM === matchedProj.CLEAN_NUM) {
-                      node.setSelected(true, true);
-                      gridApi.ensureNodeVisible(node);
-                      selectedNode = node;
-                    }
-                  });
-                }
+                renderNativeTable(currentFilteredData);
               }
             });
           }
@@ -826,20 +693,18 @@
 
     function onSearchInput() {
       const query = document.getElementById('global-search').value.toLowerCase();
-      if (gridApi) gridApi.setGridOption('quickFilterText', query);
+      const searched = currentFilteredData.filter(p => {
+        const name = (p['PROJECT NAME'] || '').toLowerCase();
+        const num = (p['STATE PROJECT NUMBER'] || p.CLEAN_NUM || '').toLowerCase();
+        const prog = (p.PROGRAM_NUM_CLEAN || '').toLowerCase();
+        const pm = (p.SOURCE_PM || '').toLowerCase();
+        const county = (p.COUNTY || '').toLowerCase();
 
-      if (currentViewMode === 'cards') {
-        const searched = currentFilteredData.filter(p => {
-          const name = (p['PROJECT NAME'] || '').toLowerCase();
-          const num = (p['STATE PROJECT NUMBER'] || p.CLEAN_NUM || '').toLowerCase();
-          const prog = (p.PROGRAM_NUM_CLEAN || '').toLowerCase();
-          const pm = (p.SOURCE_PM || '').toLowerCase();
-          const county = (p.COUNTY || '').toLowerCase();
+        return name.includes(query) || num.includes(query) || prog.includes(query) || pm.includes(query) || county.includes(query);
+      });
 
-          return name.includes(query) || num.includes(query) || prog.includes(query) || pm.includes(query) || county.includes(query);
-        });
-        renderCardView(searched);
-      }
+      if (currentViewMode === 'cards') renderCardView(searched);
+      else renderNativeTable(searched);
     }
 
     function applyFilters() {
@@ -863,8 +728,8 @@
         return matchesPM && matchesStatus && matchesType && matchesCounty;
       });
 
-      if (gridApi) gridApi.setGridOption('rowData', currentFilteredData);
       if (currentViewMode === 'cards') renderCardView(currentFilteredData);
+      else renderNativeTable(currentFilteredData);
       
       updatePipelineChart(currentFilteredData);
       updateKPIs(currentFilteredData);
@@ -959,10 +824,8 @@
 
     function closeDrawer() {
       document.getElementById('detail-drawer').classList.add('translate-x-full');
-      if (gridApi) {
-        gridApi.deselectAll();
-      }
-      selectedNode = null;
+      selectedProjectNum = null;
+      renderNativeTable(currentFilteredData);
     }
 
     function formatCurrency(val) {
