@@ -1214,7 +1214,7 @@ const DASHBOARD_DATA = {
       "CONSTRUCTION NOTICE TO PROCEED": NaN,
       "CONSTRUCTION COMPLETION DATE": NaN,
       "PROJECT COMPLETION PERCENTAGE": NaN,
-      "STATUS UPDATE": " Waiting for sponsor to return signed agreement. Called and Sponsor 8/11/2026 about agreement.  He was meeting with group to review agreement before signing.  ",
+      "STATUS UPDATE": " Waiting for sponsor to return signed agreement. Called and Sponsor 8/11/2026 about agreement.  He was meeting with group to review agreement before signing.  Met with Sponsor 8/20/2026.  We are going to contact Cenforce to see if they will work on this project and get back with Sponsor.  Going to walk the project the first week of Sept. 2026 ",
       "PROJECT COMPLETE?": "No",
       "PROJECT MANAGER": "Ballard",
       "Unnamed: 28": NaN,
