@@ -8254,7 +8254,7 @@ const DASHBOARD_DATA = {
       "CONSTRUCTION NOTICE TO PROCEED": NaN,
       "CONSTRUCTION COMPLETION DATE": NaN,
       "PROJECT COMPLETION PERCENTAGE": "0.00%",
-      "STATUS UPDATE": "Sponsor looking for matching funds New Mayor assigned. Spoke with her today 8/13/25 she is looking into funding and who will hire the consultant; Mayor Marlene Lewis is meeting with Senator Bartlet about funding. Will use internal funding to complete 5k sidewalk project including design and construction. Scoped 7/6/26. Meeting will council to determine location. City as determined to use option 1 that was given from the cost estimate. ",
+      "STATUS UPDATE": "Sponsor looking for matching funds New Mayor assigned. Spoke with her today 8/13/25 she is looking into funding and who will hire the consultant; Mayor Marlene Lewis is meeting with Senator Bartlet about funding. Will use internal funding to complete 5k sidewalk project including design and construction. Scoped 7/6/26. Meeting will council to determine location. City as determined to use option 1 that was given from the rough dratf cost estimate. Processing scope of work notes and negotioating fee proposal.",
       "PROJECT COMPLETE?": NaN,
       "PROJECT MANAGER": NaN,
       "Unnamed: 28": NaN,
