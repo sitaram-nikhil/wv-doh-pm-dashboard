@@ -763,7 +763,7 @@ const DASHBOARD_DATA = {
       "5G or OCC": "5G",
       "CONSULTANT": NaN,
       "DESIGN NOTICE TO PROCEED": NaN,
-      "SCOPE OF WORK": NaN,
+      "SCOPE OF WORK": "9/9/26",
       "30% PLANS RECEIVED": NaN,
       "PRELIMINARY FIELD REVIEW": NaN,
       "90% PLANS RECEIVED": NaN,
