@@ -18,11 +18,24 @@ SHEETS_TO_PROCESS = [
     ('Cancelled', 'Dashboard_2026_Cancelled_Reallocated.csv')
 ]
 
-def clean_currency(val):
-    if pd.isna(val):
+def get_col_val(row, *target_names):
+    """
+    Robust column lookup matching column names regardless of embedded newlines or spaces.
+    e.g., 'STATE PROJECT\nNUMBER' matches 'STATE PROJECT NUMBER'.
+    """
+    for col in row.keys():
+        norm_key = re.sub(r'\s+', '', str(col)).upper()
+        for target in target_names:
+            norm_target = re.sub(r'\s+', '', str(target)).upper()
+            if norm_key == norm_target:
+                val = row[col]
+                if pd.notna(val):
+                    return str(val).strip()
+    return ''
+
+def clean_currency(val_str):
+    if not val_str:
         return 0.0
-    val_str = str(val).strip()
-    # Handle multiline currency values (e.g., "$77,262.45\n\n$400,000.00") by picking first valid line
     lines = [line.strip() for line in val_str.split('\n') if line.strip()]
     if not lines:
         return 0.0
@@ -33,19 +46,36 @@ def clean_currency(val):
     except ValueError:
         return 0.0
 
-def clean_completion_pct(val):
-    if pd.isna(val):
+def clean_completion_pct(val_str):
+    if not val_str:
         return "0%"
-    val_str = str(val).strip()
-    # Check if there is a numeric percentage pattern (e.g., "95%")
-    match = re.search(r'(\d+(\.\d+)?)%', val_str)
-    if match:
-        return f"{match.group(1)}%"
-    # Check if there is a raw integer/float (e.g., "95" or "95.0")
-    match_raw = re.match(r'^\d+(\.\d+)?$', val_str)
-    if match_raw:
-        return f"{match_raw.group(0)}%"
-    # If cell contains target dates (e.g., "12/28/26 E") or "TBA", safely default to "0%"
+    
+    val_clean = str(val_str).strip()
+    if not val_clean or val_clean.lower() in ['nan', 'null', 'none', '-', 'tba', 'tbd', 'yes', 'no']:
+        return "0%"
+    
+    # Ignore target dates logged in % columns (e.g., "12/28/26 E", "2025-10-01")
+    if re.search(r'\d{1,4}[-/]\d{1,2}[-/]\d{1,4}', val_clean):
+        return "0%"
+    
+    # Match explicit % strings (e.g., "95%", "25.5%", "0.25%")
+    match_pct = re.search(r'(\d+(\.\d+)?)%', val_clean)
+    if match_pct:
+        num = float(match_pct.group(1))
+        if 0 < num <= 1.0:
+            num = num * 100
+        return f"{min(100, round(num))}%"
+    
+    # Scale decimal floats (e.g., "0.95" -> 95%, "0.25" -> 25%)
+    match_num = re.search(r'^\s*(\d+(\.\d+)?)\s*$', val_clean)
+    if match_num:
+        num = float(match_num.group(1))
+        if 0 < num <= 1.0:
+            num = num * 100
+        elif num > 100:
+            num = 100.0
+        return f"{min(100, round(num))}%"
+        
     return "0%"
 
 def process_all_sheets():
@@ -60,27 +90,33 @@ def process_all_sheets():
 
         try:
             df = pd.read_csv(filepath)
-            df.columns = [str(c).strip() for c in df.columns]
 
             for idx, row in df.iterrows():
-                proj_name = row.get('PROJECT NAME', '')
-                if pd.isna(proj_name) or str(proj_name).strip() == '':
+                proj_name = get_col_val(row, 'PROJECT NAME', 'NAME')
+                if not proj_name:
                     continue
 
                 proj_dict = row.to_dict()
 
+                # Robust column extraction
+                state_num = get_col_val(row, 'STATE PROJECT NUMBER', 'STATE PROJECT NO', 'STATE PROJ NUM')
+                prog_num = get_col_val(row, 'PROGRAM NUMBER', 'PROGRAM NO', 'PROGRAM NUM')
+                proj_type = get_col_val(row, 'PROJECT TYPE', 'TYPE')
+                fed_num = get_col_val(row, 'FEDERAL PROJECT NUMBER', 'FEDERAL PROJ NUM')
+                raw_award = get_col_val(row, 'AWARD')
+                raw_supp = get_col_val(row, 'SUPPLEMENTALS', 'SUPPLEMENTAL')
+                raw_pct = get_col_val(row, 'PROJECT COMPLETION PERCENTAGE', 'COMPLETION PERCENTAGE', 'PERCENTAGE', '% COMPLETE')
+
                 # Clean Currency Fields
-                award_clean = clean_currency(row.get('AWARD', 0.0))
-                supp_clean = clean_currency(row.get('SUPPLEMENTALS', 0.0))
+                award_clean = clean_currency(raw_award)
+                supp_clean = clean_currency(raw_supp)
                 total_val_clean = award_clean + supp_clean
 
                 # Clean Completion Percentage
-                pct_col = [c for c in df.columns if 'COMPLETION' in c or 'PERCENTAGE' in c]
-                raw_pct = row.get(pct_col[0], '0%') if pct_col else '0%'
-                proj_dict['PROJECT COMPLETION PERCENTAGE'] = clean_completion_pct(raw_pct)
+                clean_pct = clean_completion_pct(raw_pct)
+                proj_dict['PROJECT COMPLETION PERCENTAGE'] = clean_pct
 
                 # Generate Clean State Project Identifier
-                state_num = str(row.get('STATE PROJECT NUMBER', '')).strip()
                 if not state_num or state_num.lower() in ['nan', 'null', 'n/a', 'none', '']:
                     clean_num = f"PROJ-{pm_tag.upper()}-{idx+1}"
                 else:
@@ -93,9 +129,12 @@ def process_all_sheets():
                 proj_dict['SPENT_DESIGN_CLEAN'] = 0.0
                 proj_dict['SPENT_CONST_CLEAN'] = 0.0
                 proj_dict['CLEAN_NUM'] = clean_num
-                proj_dict['PROGRAM_NUM_CLEAN'] = str(row.get('PROGRAM NUMBER', '')).replace('.0', '').strip()
-                proj_dict['FED_NUM_CLEAN'] = str(row.get('FEDERAL PROJECT NUMBER', '')).strip()
-                proj_dict['PROJECT_TYPE_CLEAN'] = str(row.get('PROJECT TYPE', '')).strip()
+                proj_dict['STATE PROJECT NUMBER'] = state_num if state_num else clean_num
+                proj_dict['PROGRAM NUMBER'] = prog_num
+                proj_dict['PROGRAM_NUM_CLEAN'] = prog_num.replace('.0', '').strip()
+                proj_dict['FED_NUM_CLEAN'] = fed_num
+                proj_dict['PROJECT TYPE'] = proj_type
+                proj_dict['PROJECT_TYPE_CLEAN'] = proj_type
                 proj_dict['SOURCE_PM'] = pm_tag
 
                 # Replace NaNs with None for JSON compliance
@@ -110,7 +149,6 @@ def process_all_sheets():
         except Exception as e:
             print(f"  [×] Error reading {filename}: {e}")
 
-    # Preserve existing GeoJSON if available inside current dashboard_data.js
     existing_geojson = {"type": "FeatureCollection", "features": []}
     js_out_path = os.path.join(PROJECT_DIR, "dashboard_data.js")
 
