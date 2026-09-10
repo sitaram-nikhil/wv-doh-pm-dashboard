@@ -1590,7 +1590,7 @@ const DASHBOARD_DATA = {
       "CONSTRUCTION\nNOTICE TO PROCEED": null,
       "CONSTRUCTION\nCOMPLETION DATE": null,
       "PROJECT COMPLETION\nPERCENTAGE": null,
-      "STATUS UPDATE": " Fully executed agreement.  Authorized in the HUB.  Issuing a supplement agreement to revise scope.  Sponsor waiting on offical 5G approval for DOH ",
+      "STATUS UPDATE": " Fully executed agreement.  Authorized in the HUB.  Issuing a supplement agreement to revise scope.  Sponsor went with CCC to do their 5G consultant.  Monthly call 9/10/26.  CCC hasn't signed contract or looked walked or scoped the project. ",
       "PROJECT\nCOMPLETE?": "No",
       "PROJECT\nMANAGER": "Ballard",
       "Unnamed: 28": null,
