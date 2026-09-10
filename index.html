@@ -28,8 +28,8 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       height: 100vh; 
       overflow: hidden; 
-      background-color: #090d16; 
-      color: #f8fafc; 
+      background-color: #f8fafc; 
+      color: #0f172a; 
     }
     
     .font-mono {
@@ -38,66 +38,58 @@
 
     #map { height: 100%; width: 100%; border-radius: 0.75rem; }
     
-    /* GLASSMORPHISM & CONTAINER UTILITIES */
-    .glass-card {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    /* WV EXECUTIVE THEME CARDS */
+    .executive-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 1px 3px 0 rgba(0, 40, 85, 0.04), 0 1px 2px -1px rgba(0, 40, 85, 0.04);
     }
 
-    .glass-header {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    .wv-navy-header {
+      background: #002855;
+      border-bottom: 2px solid #EAAA00;
     }
 
-    /* GLOWING STATUS LED INDICATORS */
+    /* STATUS LED INDICATORS */
     .led-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;
     }
-    .led-green { 
-      background-color: #10b981; 
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.9); 
+    .led-gold { 
+      background-color: #EAAA00; 
+      box-shadow: 0 0 6px rgba(234, 170, 0, 0.6); 
     }
-    .led-blue { 
-      background-color: #38bdf8; 
-      box-shadow: 0 0 8px rgba(56, 189, 248, 0.9); 
-    }
-    .led-amber { 
-      background-color: #f59e0b; 
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.9); 
+    .led-navy { 
+      background-color: #002855; 
+      box-shadow: 0 0 6px rgba(0, 40, 85, 0.4); 
     }
 
-    /* FORCED DARK SCROLLBARS */
+    /* CUSTOM SCROLLBARS */
     ::-webkit-scrollbar,
     .custom-scrollbar::-webkit-scrollbar {
-      width: 8px !important;
-      height: 8px !important;
-      background-color: #090d16 !important;
+      width: 6px !important;
+      height: 6px !important;
+      background-color: #f1f5f9 !important;
     }
 
     ::-webkit-scrollbar-track,
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: #090d16 !important;
-      border-radius: 8px !important;
+      background: #f1f5f9 !important;
+      border-radius: 6px !important;
     }
 
     ::-webkit-scrollbar-thumb,
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #334155 !important;
-      border-radius: 8px !important;
-      border: 2px solid #090d16 !important;
+      background: #cbd5e1 !important;
+      border-radius: 6px !important;
     }
 
     ::-webkit-scrollbar-thumb:hover,
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #475569 !important;
+      background: #94a3b8 !important;
     }
 
     #detail-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -105,18 +97,18 @@
 </head>
 <body class="flex flex-col">
 
-  <!-- TOP NAVIGATION & GLOBAL CONTROLS BAR (GLASSMORPHIC) -->
-  <header class="glass-header px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 z-20 relative">
+  <!-- TOP NAVIGATION & GLOBAL CONTROLS BAR (WV NAVY & GOLD) -->
+  <header class="wv-navy-header px-6 py-3 flex flex-wrap items-center justify-between gap-4 z-20 relative shadow-md">
     <div class="flex items-center space-x-3.5">
-      <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-2.5 rounded-xl text-white font-extrabold text-lg shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
+      <div class="bg-[#EAAA00] p-2.5 rounded-xl text-[#002855] font-black text-xl shadow-inner tracking-wider">
         WV
       </div>
       <div>
         <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
           TA/RT Programs Dashboard
-          <span class="px-2 py-0.5 text-[10px] font-bold bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">v2.0</span>
+          <span class="px-2.5 py-0.5 text-[10px] font-extrabold bg-[#EAAA00] text-[#002855] rounded-full uppercase tracking-wider">WV DOT</span>
         </h1>
-        <p class="text-xs text-slate-400">WV DOT Project Management Command Center</p>
+        <p class="text-xs text-[#EAAA00] font-semibold">WV DOT Project Management Command Center</p>
       </div>
     </div>
 
@@ -124,20 +116,21 @@
     <div class="flex-1 max-w-md relative">
       <input type="text" id="global-search" oninput="onSearchInput()" 
              placeholder="Search Project Name, Number, Program #, PM, County..." 
-             class="w-full bg-slate-900/80 border border-slate-700/80 text-slate-100 px-4 py-2 pl-10 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder-slate-500">
-      <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             class="w-full bg-[#001d3d] border border-[#EAAA00]/40 text-white px-4 py-1.5 pl-10 rounded-xl text-sm focus:outline-none focus:border-[#EAAA00] focus:ring-2 focus:ring-[#EAAA00]/20 transition-all duration-200 placeholder-slate-400">
+      <svg class="w-4 h-4 text-[#EAAA00] absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
     </div>
 
     <!-- FILTERS & VIEW MODE SWITCHER -->
-    <div class="flex items-center space-x-2.5 text-xs font-medium">
-      <select id="filter-type" onchange="applyFilters()" class="bg-slate-900/80 border border-slate-700/80 text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-blue-500 transition-all cursor-pointer">
+    <div class="flex items-center space-x-2 text-xs font-medium">
+      <select id="filter-type" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
         <option value="ALL">Program Types</option>
       </select>
 
-      <select id="filter-pm" onchange="applyFilters()" class="bg-slate-900/80 border border-slate-700/80 text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-blue-500 transition-all cursor-pointer">
+      <select id="filter-pm" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
         <option value="ALL">Managers</option>
+        <option value="Brian">Brian</option>
         <option value="Cameron">Cameron</option>
         <option value="Jennifer">Jennifer</option>
         <option value="Kyle">Kyle</option>
@@ -147,104 +140,116 @@
         <option value="Travis">Travis</option>
       </select>
 
-      <select id="filter-county" onchange="applyFilters()" class="bg-slate-900/80 border border-slate-700/80 text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-blue-500 transition-all cursor-pointer">
+      <select id="filter-county" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
         <option value="ALL">Counties</option>
       </select>
 
-      <select id="filter-status" onchange="applyFilters()" class="bg-slate-900/80 border border-slate-700/80 text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:border-blue-500 transition-all cursor-pointer">
+      <select id="filter-status" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
         <option value="ALL">Statuses</option>
         <option value="Active">Active Projects</option>
         <option value="Completed">Completed Projects</option>
       </select>
 
       <!-- VIEW MODE TOGGLE BUTTONS -->
-      <div class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-700/80">
-        <button id="btn-view-grid" onclick="switchView('grid')" class="px-3 py-1.5 rounded-lg font-bold transition-all bg-blue-600 text-white shadow-md">
+      <div class="flex items-center bg-[#001d3d] p-1 rounded-xl border border-[#EAAA00]/40">
+        <button id="btn-view-grid" onclick="switchView('grid')" class="px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm">
           Grid View
         </button>
-        <button id="btn-view-cards" onclick="switchView('cards')" class="px-3 py-1.5 rounded-lg font-bold transition-all text-slate-400 hover:text-white">
+        <button id="btn-view-cards" onclick="switchView('cards')" class="px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white">
           Executive Cards
         </button>
       </div>
     </div>
   </header>
 
-  <!-- KPI RIBBON BAR -->
-  <section class="px-6 py-3 grid grid-cols-2 md:grid-cols-6 gap-3.5 text-center z-10">
-    <div class="glass-card p-3 rounded-xl border border-slate-800/80 relative overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
-      <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
-      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Total Awarded</span>
-      <span id="kpi-awarded" class="text-xl font-extrabold text-blue-400 tracking-tight">$0.00M</span>
+  <!-- KPI RIBBON BAR (WV BLUE AND GOLD ACCENTS) -->
+  <section class="px-6 py-3 grid grid-cols-2 md:grid-cols-6 gap-3 text-center z-10">
+    <div class="executive-card p-3 rounded-xl border border-blue-200 bg-[#E6F0FA] relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Total Awarded</span>
+      <span id="kpi-awarded" class="text-xl font-extrabold text-[#002855] tracking-tight">$0.00M</span>
     </div>
 
-    <div class="glass-card p-3 rounded-xl border border-slate-800/80 relative overflow-hidden group hover:border-teal-500/40 transition-all duration-300">
-      <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-teal-500/10 rounded-full blur-xl group-hover:bg-teal-500/20 transition-all"></div>
-      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Total Portfolio Value</span>
-      <span id="kpi-total-value" class="text-xl font-extrabold text-teal-300 tracking-tight">$0.00M</span>
+    <div class="executive-card p-3 rounded-xl border border-amber-200 bg-[#FFF8E6] relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#EAAA00]"></div>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Total Portfolio Value</span>
+      <span id="kpi-total-value" class="text-xl font-extrabold text-[#B38200] tracking-tight">$0.00M</span>
     </div>
 
-    <div class="glass-card p-3 rounded-xl border border-slate-800/80 relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300">
-      <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all"></div>
-      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Supplemental Funding</span>
-      <span id="kpi-total-supp" class="text-xl font-extrabold text-indigo-400 tracking-tight">$0.00M</span>
+    <div class="executive-card p-3 rounded-xl border border-blue-200 bg-[#E6F0FA] relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Supplemental Funding</span>
+      <span id="kpi-total-supp" class="text-xl font-extrabold text-[#002855] tracking-tight">$0.00M</span>
     </div>
 
-    <div class="glass-card p-3 rounded-xl border border-slate-800/80 relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300">
-      <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Active Projects</span>
-      <span id="kpi-active-count" class="text-xl font-extrabold text-amber-400 tracking-tight">0</span>
+    <div class="executive-card p-3 rounded-xl border border-amber-200 bg-[#FFF8E6] relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#EAAA00]"></div>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Active Projects</span>
+      <span id="kpi-active-count" class="text-xl font-extrabold text-[#B38200] tracking-tight">0</span>
     </div>
 
-    <div class="glass-card p-3 rounded-xl border border-slate-800/80 relative overflow-hidden group hover:border-green-500/40 transition-all duration-300">
-      <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-green-500/10 rounded-full blur-xl group-hover:bg-green-500/20 transition-all"></div>
-      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Completed Projects</span>
-      <span id="kpi-completed-count" class="text-xl font-extrabold text-green-400 tracking-tight">0</span>
+    <div class="executive-card p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-emerald-600"></div>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Completed Projects</span>
+      <span id="kpi-completed-count" class="text-xl font-extrabold text-emerald-700 tracking-tight">0</span>
     </div>
 
-    <div class="glass-card p-3 rounded-xl border border-slate-800/80 relative overflow-hidden group hover:border-cyan-500/40 transition-all duration-300">
-      <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-cyan-500/10 rounded-full blur-xl group-hover:bg-cyan-500/20 transition-all"></div>
-      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Total Compiled</span>
-      <span id="kpi-total-count" class="text-xl font-extrabold text-cyan-300 tracking-tight">0</span>
+    <div class="executive-card p-3 rounded-xl border border-slate-300 bg-white relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Total Compiled</span>
+      <span id="kpi-total-count" class="text-xl font-extrabold text-[#002855] tracking-tight">0</span>
     </div>
   </section>
 
-  <!-- MAIN SINGLE-SCREEN DASHBOARD BODY -->
-  <main class="flex-1 grid grid-cols-12 gap-4 px-6 pb-6 min-h-0 relative">
+  <!-- MAIN FLEXIBLE DASHBOARD BODY WITH RESIZABLE SPLITTER -->
+  <main id="main-container" class="flex-1 flex flex-row px-6 pb-6 min-h-0 relative select-none">
     
-    <!-- LEFT PANEL: MAP (5 COLS) -->
-    <div class="col-span-12 lg:col-span-5 glass-card p-3 rounded-2xl border border-slate-800/80 flex flex-col">
+    <!-- LEFT PANEL: MAP WITH PRESET SNAP BUTTONS -->
+    <div id="map-panel" class="executive-card p-3 rounded-2xl border border-slate-300 flex flex-col shrink-0" style="width: 25%; min-width: 15%; max-width: 70%;">
       <div class="flex justify-between items-center mb-2 px-1">
-        <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Geographic Project Mapping</h2>
-        <span class="text-[11px] font-medium text-slate-400 bg-slate-800/80 px-2.5 py-0.5 rounded-full border border-slate-700/50" id="map-feature-count">0 Map Vectors Loaded</span>
+        <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#EAAA00]"></span> Geographic Mapping
+        </h2>
+        <div class="flex items-center space-x-1">
+          <span class="text-[9px] text-slate-500 font-bold uppercase mr-0.5">Snap:</span>
+          <button onclick="setMapWidth(15)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] hover:bg-blue-100 text-[#002855] rounded border border-blue-200 transition-colors">15%</button>
+          <button onclick="setMapWidth(35)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] hover:bg-blue-100 text-[#002855] rounded border border-blue-200 transition-colors">35%</button>
+          <button onclick="setMapWidth(50)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] hover:bg-blue-100 text-[#002855] rounded border border-blue-200 transition-colors">50%</button>
+        </div>
       </div>
-      <div class="flex-1 relative overflow-hidden rounded-xl">
+      <div class="flex-1 relative overflow-hidden rounded-xl border border-slate-200">
         <div id="map"></div>
       </div>
     </div>
 
-    <!-- RIGHT PANEL: ANALYTICS & DATA VIEWS (7 COLS) -->
-    <div class="col-span-12 lg:col-span-7 flex flex-col space-y-4 min-h-0">
+    <!-- RESIZABLE SPLITTER HANDLE -->
+    <div id="drag-handle" class="w-3 flex items-center justify-center cursor-col-resize group px-0.5 z-30 hover:bg-amber-100/50 rounded transition-colors mx-1 shrink-0">
+      <div class="w-1.5 h-10 bg-[#002855]/30 group-hover:bg-[#EAAA00] rounded-full transition-colors"></div>
+    </div>
+
+    <!-- RIGHT PANEL: ANALYTICS & DATA VIEWS -->
+    <div id="grid-panel" class="flex-1 flex flex-col space-y-4 min-h-0 min-w-0">
       
       <!-- TOP CHART: PIPELINE -->
-      <div class="glass-card p-3.5 rounded-2xl border border-slate-800/80 h-44 flex flex-col">
-        <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Stage-Gate Milestone Pipeline</h2>
+      <div class="executive-card p-3.5 rounded-2xl border border-slate-300 h-40 flex flex-col shrink-0">
+        <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider mb-1">Stage-Gate Milestone Pipeline</h2>
         <div class="flex-1 relative min-h-0 w-full">
           <canvas id="pipelineChart"></canvas>
         </div>
       </div>
 
       <!-- BOTTOM CONTAINER: TOGGLED DATA VIEWS -->
-      <div class="flex-1 glass-card p-3.5 rounded-2xl border border-slate-800/80 flex flex-col min-h-0">
+      <div class="flex-1 executive-card p-3.5 rounded-2xl border border-slate-300 flex flex-col min-h-0">
         <div class="flex justify-between items-center mb-2.5">
-          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider" id="view-title">Active Portfolio Grid</h2>
-          <span class="text-[11px] text-slate-400 font-medium">Click any row or card to inspect details</span>
+          <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider" id="view-title">Active Portfolio Grid</h2>
+          <span class="text-[11px] text-slate-500 font-medium">Click any row or card to inspect details</span>
         </div>
 
-        <!-- VIEW 1: NATIVE TAILWIND TABLE -->
+        <!-- VIEW 1: NATIVE TAILWIND TABLE (WV NAVY HEADER WITH GOLD TEXT) -->
         <div id="grid-view-panel" class="flex-1 w-full h-full min-h-0">
-          <div class="w-full h-full overflow-y-auto custom-scrollbar pr-1 flex flex-col space-y-2">
+          <div class="w-full h-full overflow-y-auto custom-scrollbar pr-1 flex flex-col space-y-1.5">
             <!-- Sticky Table Header -->
-            <div class="grid grid-cols-12 gap-2 px-4 py-2.5 bg-slate-800/95 rounded-xl text-[11px] font-bold text-slate-300 uppercase tracking-wider sticky top-0 z-10 border border-slate-700/80 backdrop-blur-md">
+            <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-[#002855] rounded-xl text-[11px] font-extrabold text-[#EAAA00] uppercase tracking-wider sticky top-0 z-10 border border-[#001d3d] shadow-sm">
               <div class="col-span-2">State Project #</div>
               <div class="col-span-1">Program #</div>
               <div class="col-span-3">Project Name</div>
@@ -261,7 +266,7 @@
 
         <!-- VIEW 2: EXECUTIVE CARD GRID -->
         <div id="card-view-panel" class="hidden flex-1 w-full h-full overflow-y-auto custom-scrollbar pr-1">
-          <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <!-- Cards rendered dynamically by JS -->
           </div>
         </div>
@@ -269,10 +274,10 @@
     </div>
 
     <!-- SLIDE-OUT PROJECT DETAIL DRAWER -->
-    <aside id="detail-drawer" class="absolute top-0 right-0 h-full w-full max-w-lg glass-card border-l border-slate-700/80 shadow-2xl z-50 transform translate-x-full p-6 overflow-y-auto flex flex-col">
-      <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-        <h3 class="text-base font-bold text-white" id="drawer-title">Project Details</h3>
-        <button onclick="closeDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/80 transition-all">
+    <aside id="detail-drawer" class="absolute top-0 right-0 h-full w-full max-w-lg bg-white border-l-2 border-[#002855] shadow-2xl z-50 transform translate-x-full p-6 overflow-y-auto flex flex-col">
+      <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+        <h3 class="text-base font-extrabold text-[#002855]" id="drawer-title">Project Details</h3>
+        <button onclick="closeDrawer()" class="text-slate-400 hover:text-[#002855] p-1 rounded-lg hover:bg-slate-100 transition-all">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
@@ -295,6 +300,7 @@
     document.addEventListener("DOMContentLoaded", function() {
       initMap();
       initChart();
+      initSplitter();
       loadDashboardData();
 
       document.addEventListener('keydown', function(e) {
@@ -304,8 +310,51 @@
       });
     });
 
+    function initSplitter() {
+      const dragHandle = document.getElementById('drag-handle');
+      const mapPanel = document.getElementById('map-panel');
+      const mainContainer = document.getElementById('main-container');
+      let isDragging = false;
+
+      dragHandle.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        document.body.style.cursor = 'col-resize';
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const rect = mainContainer.getBoundingClientRect();
+        let pct = ((e.clientX - rect.left) / rect.width) * 100;
+        
+        if (pct < 12) pct = 12;
+        if (pct > 65) pct = 65;
+
+        mapPanel.style.width = pct + '%';
+        if (map) map.invalidateSize();
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          document.body.style.cursor = '';
+          if (map) map.invalidateSize();
+        }
+      });
+    }
+
+    function setMapWidth(pct) {
+      const mapPanel = document.getElementById('map-panel');
+      if (!mapPanel) return;
+      mapPanel.style.transition = 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      mapPanel.style.width = pct + '%';
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+        mapPanel.style.transition = '';
+      }, 300);
+    }
+
     function initMap() {
-      const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      const lightPositron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
         maxZoom: 19
       });
@@ -331,9 +380,9 @@
       });
 
       const baseMaps = {
-        "Dark Theme": darkLayer,
-        "Satellite Hybrid": satelliteHybrid,
-        "Street Map": streetLayer
+        "Street Map": streetLayer,
+        "Light Canvas": lightPositron,
+        "Satellite Hybrid": satelliteHybrid
       };
 
       L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
@@ -348,21 +397,21 @@
           datasets: [{
             label: 'Projects in Phase',
             data: [0, 0, 0, 0, 0],
-            backgroundColor: ['#3b82f6', '#0ea5e9', '#06b6d4', '#10b981', '#22c55e'],
+            backgroundColor: ['#002855', '#1d4ed8', '#0284c7', '#B38200', '#EAAA00'],
             borderRadius: 6
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 12, bottom: 4, left: 18, right: 8 } },
+          layout: { padding: { top: 10, bottom: 0, left: 10, right: 10 } },
           plugins: { 
             legend: { display: false },
             tooltip: {
-              backgroundColor: 'rgba(15, 23, 42, 0.95)',
-              titleColor: '#f8fafc',
-              bodyColor: '#38bdf8',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
+              backgroundColor: '#002855',
+              titleColor: '#EAAA00',
+              bodyColor: '#ffffff',
+              borderColor: '#EAAA00',
               borderWidth: 1,
               padding: 8,
               displayColors: false
@@ -370,13 +419,13 @@
           },
           scales: {
             x: { 
-              ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, maxRotation: 0, autoSkip: false }, 
+              ticks: { color: '#002855', font: { family: 'Plus Jakarta Sans', size: 10, weight: '700' }, maxRotation: 0, autoSkip: false }, 
               grid: { display: false } 
             },
             y: { 
-              afterFit: (scale) => { scale.width = 38; },
-              ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 10 }, precision: 0 }, 
-              grid: { color: 'rgba(51, 65, 85, 0.3)' }, 
+              afterFit: (scale) => { scale.width = 30; },
+              ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 10 }, precision: 0 }, 
+              grid: { color: '#e2e8f0' }, 
               beginAtZero: true 
             }
           }
@@ -389,11 +438,11 @@
       if (!rowsContainer) return;
 
       if (!data || data.length === 0) {
-        rowsContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs font-semibold">No matching project records found.</div>`;
+        rowsContainer.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs font-semibold">No matching project records found.</div>`;
         return;
       }
 
-      rowsContainer.innerHTML = data.map(p => {
+      rowsContainer.innerHTML = data.map((p, idx) => {
         const cleanNum = p.CLEAN_NUM || '';
         const name = p['PROJECT NAME'] || 'Untitled Project';
         let prog = (p.PROGRAM_NUM_CLEAN && p.PROGRAM_NUM_CLEAN !== 'nan' && p.PROGRAM_NUM_CLEAN !== 'null') ? p.PROGRAM_NUM_CLEAN.toString().trim() : '—';
@@ -407,35 +456,38 @@
         const rawPct = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
         const pct = Math.min(100, Math.max(0, parseFloat(rawPct) || 0));
 
-        let ledClass = 'led-amber', barColor = 'bg-amber-500';
-        if (pct === 100) { ledClass = 'led-green'; barColor = 'bg-emerald-500'; }
-        else if (pct > 50) { ledClass = 'led-blue'; barColor = 'bg-blue-500'; }
+        let ledClass = 'led-gold', barColor = 'bg-[#EAAA00]';
+        if (pct === 100) { ledClass = 'led-navy'; barColor = 'bg-[#002855]'; }
+
+        // PM Pill Color Logic
+        let pmStyle = "bg-[#FFF8E6] text-[#B38200] border-amber-300";
+        if (idx % 2 === 0) pmStyle = "bg-[#E6F0FA] text-[#002855] border-blue-200";
 
         const isSelected = selectedProjectNum === cleanNum;
         const rowBg = isSelected 
-          ? 'bg-blue-900/40 border-blue-500 shadow-md shadow-blue-500/10 ring-1 ring-blue-500/40' 
-          : 'bg-slate-900/80 hover:bg-slate-800/90 border-slate-800/80 hover:border-slate-700';
+          ? 'bg-amber-50/90 border-[#EAAA00] shadow-sm ring-2 ring-[#EAAA00]/40' 
+          : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300';
 
         return `
           <div onclick="onNativeRowClick('${cleanNum}')" 
-               class="grid grid-cols-12 gap-2 px-4 py-2.5 rounded-xl border items-center text-xs text-slate-200 transition-all cursor-pointer ${rowBg}">
+               class="grid grid-cols-12 gap-2 px-4 py-2 rounded-xl border items-center text-xs text-slate-700 transition-all cursor-pointer ${rowBg}">
             <div class="col-span-2">
-              <span class="font-mono text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">${cleanNum || '—'}</span>
+              <span class="font-mono text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200 text-[11px]">${cleanNum || '—'}</span>
             </div>
-            <div class="col-span-1 font-mono text-slate-300 font-bold truncate">${prog}</div>
-            <div class="col-span-3 font-bold text-slate-100 truncate">${name}</div>
+            <div class="col-span-1 font-mono text-slate-600 font-bold truncate">${prog}</div>
+            <div class="col-span-3 font-bold text-slate-900 truncate">${name}</div>
             <div class="col-span-1">
-              <span class="px-2 py-0.5 bg-slate-800 border border-slate-700/80 rounded-full text-[10px] text-slate-300 font-semibold">${pm}</span>
+              <span class="px-2 py-0.5 border rounded-full text-[10px] font-bold ${pmStyle}">${pm}</span>
             </div>
-            <div class="col-span-1 text-slate-300 font-semibold truncate">${county}</div>
-            <div class="col-span-1 font-mono text-emerald-400 font-bold">${award}</div>
-            <div class="col-span-1 text-slate-300 font-medium truncate">${consultant}</div>
+            <div class="col-span-1 text-slate-600 font-semibold truncate">${county}</div>
+            <div class="col-span-1 font-mono text-[#002855] font-bold">${award}</div>
+            <div class="col-span-1 text-slate-600 font-medium truncate">${consultant}</div>
             <div class="col-span-2 flex items-center space-x-2">
               <span class="led-dot ${ledClass}"></span>
-              <div class="w-full bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/60">
-                <div class="${barColor} h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                <div class="${barColor} h-2 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
               </div>
-              <span class="font-mono font-bold text-[11px] text-slate-200 w-8 text-right">${pct}%</span>
+              <span class="font-mono font-bold text-[11px] text-[#002855] w-8 text-right">${pct}%</span>
             </div>
           </div>
         `;
@@ -464,15 +516,15 @@
       const title = document.getElementById('view-title');
 
       if (mode === 'grid') {
-        btnGrid.className = "px-3 py-1.5 rounded-lg font-bold transition-all bg-blue-600 text-white shadow-md";
-        btnCards.className = "px-3 py-1.5 rounded-lg font-bold transition-all text-slate-400 hover:text-white";
+        btnGrid.className = "px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm";
+        btnCards.className = "px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white";
         panelGrid.classList.remove('hidden');
         panelCards.classList.add('hidden');
         title.innerText = "Active Portfolio Grid";
         renderNativeTable(currentFilteredData);
       } else {
-        btnCards.className = "px-3 py-1.5 rounded-lg font-bold transition-all bg-blue-600 text-white shadow-md";
-        btnGrid.className = "px-3 py-1.5 rounded-lg font-bold transition-all text-slate-400 hover:text-white";
+        btnCards.className = "px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm";
+        btnGrid.className = "px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white";
         panelCards.classList.remove('hidden');
         panelGrid.classList.add('hidden');
         title.innerText = "Executive Project Cards";
@@ -486,7 +538,7 @@
 
       if (!projects || projects.length === 0) {
         container.innerHTML = `
-          <div class="col-span-2 text-center py-12 text-slate-400">
+          <div class="col-span-3 text-center py-12 text-slate-400">
             No project records match your filter criteria.
           </div>`;
         return;
@@ -506,48 +558,46 @@
         const rawPct = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
         const pct = Math.min(100, Math.max(0, parseFloat(rawPct) || 0));
 
-        let ledClass = 'led-amber';
-        let barColor = 'bg-amber-500';
-        if (pct === 100) { ledClass = 'led-green'; barColor = 'bg-emerald-500'; }
-        else if (pct > 50) { ledClass = 'led-blue'; barColor = 'bg-blue-500'; }
+        let ledClass = 'led-gold', barColor = 'bg-[#EAAA00]';
+        if (pct === 100) { ledClass = 'led-navy'; barColor = 'bg-[#002855]'; }
 
         const cleanNum = p.CLEAN_NUM || '';
 
         html += `
-          <div onclick="onProjectCardClick('${cleanNum}')" class="glass-card p-3.5 rounded-xl border border-slate-800/80 hover:border-blue-500/50 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3">
+          <div onclick="onProjectCardClick('${cleanNum}')" class="executive-card p-3.5 rounded-xl border border-slate-200 hover:border-[#EAAA00] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3">
             <div>
               <div class="flex justify-between items-start mb-1.5 gap-2">
-                <span class="font-mono text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">${stateNum}</span>
-                <span class="px-2 py-0.5 text-[10px] rounded-full bg-slate-800 border border-slate-700/80 text-slate-300 font-semibold">${pm}</span>
+                <span class="font-mono text-xs text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200">${stateNum}</span>
+                <span class="px-2 py-0.5 text-[10px] rounded-full bg-[#FFF8E6] border border-amber-300 text-[#B38200] font-bold">${pm}</span>
               </div>
-              <h3 class="font-bold text-slate-100 text-sm leading-tight line-clamp-1 mb-1">${pName}</h3>
-              <div class="flex items-center space-x-2 text-[11px] text-slate-400">
-                <span>County: <strong class="text-slate-200">${county}</strong></span>
+              <h3 class="font-bold text-[#002855] text-sm leading-tight line-clamp-1 mb-1">${pName}</h3>
+              <div class="flex items-center space-x-2 text-[11px] text-slate-500">
+                <span>County: <strong class="text-slate-700">${county}</strong></span>
                 <span>•</span>
-                <span>Prog #: <strong class="text-slate-200 font-mono">${programNum}</strong></span>
+                <span>Prog #: <strong class="text-slate-700 font-mono">${programNum}</strong></span>
               </div>
             </div>
 
             <div class="space-y-1.5">
               <div class="flex justify-between items-center text-xs">
-                <span class="flex items-center gap-1.5 text-slate-400 font-medium">
+                <span class="flex items-center gap-1.5 text-slate-500 font-medium">
                   <span class="led-dot ${ledClass}"></span> Completion
                 </span>
-                <span class="font-mono text-amber-400 font-bold">${pct}%</span>
+                <span class="font-mono text-[#002855] font-bold">${pct}%</span>
               </div>
-              <div class="w-full bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/60">
-                <div class="${barColor} h-1.5 rounded-full" style="width: ${pct}%"></div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                <div class="${barColor} h-2 rounded-full" style="width: ${pct}%"></div>
               </div>
             </div>
 
-            <div class="pt-2 border-t border-slate-800/80 flex justify-between items-center text-xs">
+            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
               <div>
                 <span class="text-[10px] text-slate-400 block uppercase">Award</span>
-                <span class="font-mono text-emerald-400 font-bold">${formatCurrency(p.AWARD_CLEAN)}</span>
+                <span class="font-mono text-[#002855] font-bold">${formatCurrency(p.AWARD_CLEAN)}</span>
               </div>
               <div class="text-right">
                 <span class="text-[10px] text-slate-400 block uppercase">Total Value</span>
-                <span class="font-mono text-teal-300 font-extrabold">${formatCurrency(p.TOTAL_VALUE_CLEAN)}</span>
+                <span class="font-mono text-[#B38200] font-extrabold">${formatCurrency(p.TOTAL_VALUE_CLEAN)}</span>
               </div>
             </div>
           </div>
@@ -644,15 +694,15 @@
 
       if (DASHBOARD_DATA.geojson && DASHBOARD_DATA.geojson.features.length > 0) {
         const geoLayer = L.geoJSON(DASHBOARD_DATA.geojson, {
-          style: { color: '#38bdf8', weight: 4, opacity: 0.85, fillColor: '#0284c7', fillOpacity: 0.35 },
+          style: { color: '#002855', weight: 3, opacity: 0.85, fillColor: '#EAAA00', fillOpacity: 0.35 },
           pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
               radius: 7,
-              fillColor: "#38bdf8",
-              color: "#ffffff",
+              fillColor: "#EAAA00",
+              color: "#002855",
               weight: 2,
               opacity: 1,
-              fillOpacity: 0.8
+              fillOpacity: 0.95
             });
           },
           onEachFeature: function(feature, featureLayer) {
@@ -681,10 +731,6 @@
         if (geoLayer.getBounds().isValid()) {
           map.fitBounds(geoLayer.getBounds(), { padding: [20, 20] });
         }
-
-        document.getElementById('map-feature-count').innerText = `${DASHBOARD_DATA.geojson.features.length} Map Vectors Loaded`;
-      } else {
-        document.getElementById('map-feature-count').innerText = `0 Map Vectors Loaded`;
       }
 
       updatePipelineChart(masterProjectData);
@@ -757,64 +803,64 @@
       const cleanPct = (project['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
 
       const content = `
-        <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700/80 grid grid-cols-2 gap-2">
+        <div class="bg-[#E6F0FA] p-3.5 rounded-xl border border-blue-200 grid grid-cols-2 gap-2">
           <div>
-            <div class="text-[11px] text-slate-400 font-medium">State Project Number</div>
-            <div class="font-mono text-blue-400 font-bold text-sm">${project['STATE PROJECT NUMBER'] || 'N/A'}</div>
+            <div class="text-[11px] text-slate-500 font-medium">State Project Number</div>
+            <div class="font-mono text-[#002855] font-bold text-sm">${project['STATE PROJECT NUMBER'] || 'N/A'}</div>
           </div>
           <div>
-            <div class="text-[11px] text-slate-400 font-medium">Program Number</div>
-            <div class="font-mono text-slate-200 font-bold text-sm">${programNum}</div>
+            <div class="text-[11px] text-slate-500 font-medium">Program Number</div>
+            <div class="font-mono text-slate-800 font-bold text-sm">${programNum}</div>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 block font-medium">Project Manager</span>
-            <span class="font-bold text-white">${project.SOURCE_PM || 'Unassigned'}</span>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[11px] text-slate-500 block font-medium">Project Manager</span>
+            <span class="font-bold text-[#002855]">${project.SOURCE_PM || 'Unassigned'}</span>
           </div>
-          <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 block font-medium">County</span>
-            <span class="font-bold text-white">${project.COUNTY || 'N/A'}</span>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[11px] text-slate-500 block font-medium">County</span>
+            <span class="font-bold text-slate-900">${project.COUNTY || 'N/A'}</span>
           </div>
-          <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 block font-medium">Consultant</span>
-            <span class="font-bold text-slate-200">${consultant}</span>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[11px] text-slate-500 block font-medium">Consultant</span>
+            <span class="font-bold text-slate-800">${consultant}</span>
           </div>
-          <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 block font-medium">% Complete</span>
-            <span class="font-bold text-amber-400">${cleanPct}%</span>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[11px] text-slate-500 block font-medium">% Complete</span>
+            <span class="font-bold text-[#B38200]">${cleanPct}%</span>
           </div>
         </div>
 
-        <div class="bg-slate-800/50 p-3.5 rounded-xl border border-slate-800/80 space-y-3">
-          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700/60 pb-1.5">Financial Breakdown</h4>
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+          <h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider border-b border-slate-200 pb-1.5">Financial Breakdown</h4>
           
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div>
-              <span class="text-slate-400 block">Award Value:</span>
-              <span class="font-mono text-emerald-400 font-bold">${formatCurrency(project.AWARD_CLEAN)}</span>
+              <span class="text-slate-500 block">Award Value:</span>
+              <span class="font-mono text-[#002855] font-bold">${formatCurrency(project.AWARD_CLEAN)}</span>
             </div>
             <div>
-              <span class="text-slate-400 block">Supplemental:</span>
-              <span class="font-mono text-blue-400 font-bold">${formatCurrency(project.SUPPLEMENTAL_CLEAN)}</span>
+              <span class="text-slate-500 block">Supplemental:</span>
+              <span class="font-mono text-blue-700 font-bold">${formatCurrency(project.SUPPLEMENTAL_CLEAN)}</span>
             </div>
           </div>
 
-          <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700/50 flex justify-between items-center text-xs">
-            <span class="text-slate-300 font-semibold">Total Value (Award + Supp):</span>
-            <span class="font-mono text-teal-300 font-extrabold text-sm">${formatCurrency(project.TOTAL_VALUE_CLEAN)}</span>
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex justify-between items-center text-xs">
+            <span class="text-slate-700 font-semibold">Total Value (Award + Supp):</span>
+            <span class="font-mono text-[#B38200] font-extrabold text-sm">${formatCurrency(project.TOTAL_VALUE_CLEAN)}</span>
           </div>
 
-          <div class="border-t border-slate-700/40 pt-2 space-y-1 text-xs">
-            <div class="flex justify-between"><span>Design Spend:</span><span class="font-mono text-slate-300">${formatCurrency(project.SPENT_DESIGN_CLEAN)}</span></div>
-            <div class="flex justify-between"><span>Construction Spend:</span><span class="font-mono text-slate-300">${formatCurrency(project.SPENT_CONST_CLEAN)}</span></div>
+          <div class="border-t border-slate-200 pt-2 space-y-1 text-xs">
+            <div class="flex justify-between"><span>Design Spend:</span><span class="font-mono text-slate-700">${formatCurrency(project.SPENT_DESIGN_CLEAN)}</span></div>
+            <div class="flex justify-between"><span>Construction Spend:</span><span class="font-mono text-slate-700">${formatCurrency(project.SPENT_CONST_CLEAN)}</span></div>
           </div>
         </div>
 
-        <div class="bg-slate-800/50 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
-          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Latest Status Update</h4>
-          <p class="text-xs text-slate-300 leading-relaxed">${project['STATUS UPDATE'] || project['COMMENTS'] || 'No status updates logged.'}</p>
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+          <h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Latest Status Update</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">${project['STATUS UPDATE'] || project['COMMENTS'] || 'No status updates logged.'}</p>
         </div>
       `;
 

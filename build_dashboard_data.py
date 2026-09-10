@@ -1,219 +1,142 @@
 import os
 import re
 import json
-import zipfile
-import xml.etree.ElementTree as ET
 import pandas as pd
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-KML_DIR = os.path.join(PROJECT_DIR, 'kml')
 
-def clean_proj_num(val):
+SHEETS_TO_PROCESS = [
+    ('Cameron', 'Dashboard_2026_Cameron.csv'),
+    ('Jennifer', 'Dashboard_2026_Jennifer.csv'),
+    ('Kyle', 'Dashboard_2026_Kyle.csv'),
+    ('Kylena', 'Dashboard_2026_Kylena.csv'),
+    ('Rhonda', 'Dashboard_2026_Rhonda.csv'),
+    ('Sharonnia', 'Dashboard_2026_Sharonnia.csv'),
+    ('Travis', 'Dashboard_2026_Travis.csv'),
+    ('Brian', 'Dashboard_2026_Brian.csv'),
+    ('Completed', 'Dashboard_2026_Complete.csv'),
+    ('Cancelled', 'Dashboard_2026_Cancelled_Reallocated.csv')
+]
+
+def clean_currency(val):
     if pd.isna(val):
-        return ""
-    return re.sub(r'\s+', '', str(val)).upper()
-
-def clean_currency(series):
-    cleaned = (
-        series.astype(str)
-              .str.replace('$', '', regex=False)
-              .str.replace(',', '', regex=False)
-              .str.replace('(', '-', regex=False)
-              .str.replace(')', '', regex=False)
-              .str.strip()
-    )
-    return pd.to_numeric(cleaned, errors='coerce').fillna(0.0)
-
-def find_column(df, target_names):
-    # 1. Exact match check
-    for target in target_names:
-        for col in df.columns:
-            if str(col).strip().upper() == target.upper():
-                return col
-    # 2. Partial match fallback
-    for target in target_names:
-        for col in df.columns:
-            if target.upper() in str(col).strip().upper():
-                return col
-    return None
-
-def extract_coordinates(coords_text):
-    """Converts raw KML coordinate string into GeoJSON coordinate array [[lng, lat], ...]"""
-    coords_list = []
-    if not coords_text:
-        return coords_list
-    for token in coords_text.strip().split():
-        parts = token.split(',')
-        if len(parts) >= 2:
-            try:
-                lng = float(parts[0])
-                lat = float(parts[1])
-                coords_list.append([lng, lat])
-            except ValueError:
-                continue
-    return coords_list
-
-def parse_kml_file(filepath):
-    """Extracts GeoJSON features from a .kml or .kmz file using robust XML parsing."""
-    features = []
-    
+        return 0.0
+    val_str = str(val).strip()
+    # Handle multiline currency values (e.g., "$77,262.45\n\n$400,000.00") by picking first valid line
+    lines = [line.strip() for line in val_str.split('\n') if line.strip()]
+    if not lines:
+        return 0.0
+    first_line = lines[0]
+    cleaned = re.sub(r'[^\d.]', '', first_line)
     try:
-        if filepath.endswith('.kmz'):
-            with zipfile.ZipFile(filepath, 'r') as z:
-                kml_filename = [f for f in z.namelist() if f.endswith('.kml')][0]
-                content = z.read(kml_filename)
-        else:
-            with open(filepath, 'rb') as f:
-                content = f.read()
-        
-        # Strip default XML namespaces for simplified element matching
-        xml_str = re.sub(r'xmlns="[^"]+"', '', content.decode('utf-8', errors='ignore'))
-        root = ET.fromstring(xml_str)
-    except Exception as e:
-        print(f"Warning: Could not parse KML/KMZ {os.path.basename(filepath)}: {e}")
-        return features
+        return float(cleaned) if cleaned else 0.0
+    except ValueError:
+        return 0.0
 
-    # Find all Placemark elements anywhere in the tree
-    for placemark in root.findall('.//Placemark'):
-        name_elem = placemark.find('name')
-        raw_name = name_elem.text.strip() if (name_elem is not None and name_elem.text) else "Unnamed Feature"
-        
-        clean_num = clean_proj_num(raw_name)
-        clean_name_str = re.sub(r'[^A-Za-z0-9]', '', raw_name).upper()
+def clean_completion_pct(val):
+    if pd.isna(val):
+        return "0%"
+    val_str = str(val).strip()
+    # Check if there is a numeric percentage pattern (e.g., "95%")
+    match = re.search(r'(\d+(\.\d+)?)%', val_str)
+    if match:
+        return f"{match.group(1)}%"
+    # Check if there is a raw integer/float (e.g., "95" or "95.0")
+    match_raw = re.match(r'^\d+(\.\d+)?$', val_str)
+    if match_raw:
+        return f"{match_raw.group(0)}%"
+    # If cell contains target dates (e.g., "12/28/26 E") or "TBA", safely default to "0%"
+    return "0%"
 
-        # Find any coordinate elements inside Polygon, LineString, or Point (including MultiGeometry)
-        polygons = placemark.findall('.//Polygon/outerBoundaryIs/LinearRing/coordinates')
-        lines = placemark.findall('.//LineString/coordinates')
-        points = placemark.findall('.//Point/coordinates')
+def process_all_sheets():
+    print("Processing local CSV spreadsheets into dashboard_data.js...")
+    all_projects = []
 
-        for poly in polygons:
-            coords = extract_coordinates(poly.text)
-            if coords:
-                features.append({
-                    "type": "Feature",
-                    "geometry": {"type": "Polygon", "coordinates": [coords]},
-                    "properties": {"name": raw_name, "clean_num": clean_num, "clean_name": clean_name_str}
-                })
-
-        for line in lines:
-            coords = extract_coordinates(line.text)
-            if coords:
-                features.append({
-                    "type": "Feature",
-                    "geometry": {"type": "LineString", "coordinates": coords},
-                    "properties": {"name": raw_name, "clean_num": clean_num, "clean_name": clean_name_str}
-                })
-
-        for pt in points:
-            coords = extract_coordinates(pt.text)
-            if coords:
-                features.append({
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": coords[0]},
-                    "properties": {"name": raw_name, "clean_num": clean_num, "clean_name": clean_name_str}
-                })
-
-    return features
-
-def load_all_kml_features():
-    all_features = []
-    if not os.path.exists(KML_DIR):
-        os.makedirs(KML_DIR, exist_ok=True)
-        return all_features
-
-    for file in os.listdir(KML_DIR):
-        if file.endswith('.kml') or file.endswith('.kmz'):
-            path = os.path.join(KML_DIR, file)
-            extracted = parse_kml_file(path)
-            all_features.extend(extracted)
-
-    return all_features
-
-def build_data():
-    pm_files = {
-        'Cameron': 'Dashboard_2026_Cameron.csv',
-        'Jennifer': 'Dashboard_2026_Jennifer.csv',
-        'Kyle': 'Dashboard_2026_Kyle.csv',
-        'Kylena': 'Dashboard_2026_Kylena.csv',
-        'Rhonda': 'Dashboard_2026_Rhonda.csv',
-        'Sharonnia': 'Dashboard_2026_Sharonnia.csv',
-        'Travis': 'Dashboard_2026_Travis.csv',
-        'Completed': 'Dashboard_2026_Complete.csv',
-        'Cancelled': 'Dashboard_2026_Cancelled_Reallocated.csv'
-    }
-
-    all_records = []
-
-    for pm_name, filename in pm_files.items():
+    for pm_tag, filename in SHEETS_TO_PROCESS:
         filepath = os.path.join(PROJECT_DIR, filename)
-        if os.path.exists(filepath):
-            try:
-                df = pd.read_csv(filepath)
-                if df.empty:
+        if not os.path.exists(filepath):
+            print(f"  [!] Missing file: {filename} (skipping)")
+            continue
+
+        try:
+            df = pd.read_csv(filepath)
+            df.columns = [str(c).strip() for c in df.columns]
+
+            for idx, row in df.iterrows():
+                proj_name = row.get('PROJECT NAME', '')
+                if pd.isna(proj_name) or str(proj_name).strip() == '':
                     continue
-                df.columns = [" ".join(str(c).split()) for c in df.columns]
 
-                # Exact column matches with fallback
-                state_num_col = find_column(df, ['STATE PROJECT NUMBER'])
-                fed_num_col = find_column(df, ['FEDERAL PROJECT NUMBER'])
-                prog_num_col = find_column(df, ['PROGRAM NUMBER', 'PROGRAM #'])
-                proj_type_col = find_column(df, ['PROJECT TYPE', 'PROGRAM TYPE'])
+                proj_dict = row.to_dict()
 
-                award_col = find_column(df, ['AWARD'])
-                supp_col = find_column(df, ['SUPPLEMENTALS', 'SUPPLEMENTAL'])
-                design_col = find_column(df, ['SPENT (DESIGN)', 'DESIGN SPENT'])
-                const_col = find_column(df, ['SPENT (CONSTRUCTION)', 'CONSTRUCTION SPENT'])
+                # Clean Currency Fields
+                award_clean = clean_currency(row.get('AWARD', 0.0))
+                supp_clean = clean_currency(row.get('SUPPLEMENTALS', 0.0))
+                total_val_clean = award_clean + supp_clean
 
-                # Clean numeric values
-                df['AWARD_CLEAN'] = clean_currency(df[award_col]) if award_col else 0.0
-                df['SUPPLEMENTAL_CLEAN'] = clean_currency(df[supp_col]) if supp_col else 0.0
-                df['TOTAL_VALUE_CLEAN'] = df['AWARD_CLEAN'] + df['SUPPLEMENTAL_CLEAN']
+                # Clean Completion Percentage
+                pct_col = [c for c in df.columns if 'COMPLETION' in c or 'PERCENTAGE' in c]
+                raw_pct = row.get(pct_col[0], '0%') if pct_col else '0%'
+                proj_dict['PROJECT COMPLETION PERCENTAGE'] = clean_completion_pct(raw_pct)
 
-                df['SPENT_DESIGN_CLEAN'] = clean_currency(df[design_col]) if design_col else 0.0
-                df['SPENT_CONST_CLEAN'] = clean_currency(df[const_col]) if const_col else 0.0
+                # Generate Clean State Project Identifier
+                state_num = str(row.get('STATE PROJECT NUMBER', '')).strip()
+                if not state_num or state_num.lower() in ['nan', 'null', 'n/a', 'none', '']:
+                    clean_num = f"PROJ-{pm_tag.upper()}-{idx+1}"
+                else:
+                    clean_num = re.sub(r'\s+', '', state_num)
 
-                if state_num_col:
-                    df['CLEAN_NUM'] = df[state_num_col].apply(clean_proj_num)
-                    df = df[df[state_num_col].notna() & (df[state_num_col] != '')]
+                # Standardized Normalized Attributes
+                proj_dict['AWARD_CLEAN'] = award_clean
+                proj_dict['SUPPLEMENTAL_CLEAN'] = supp_clean
+                proj_dict['TOTAL_VALUE_CLEAN'] = total_val_clean
+                proj_dict['SPENT_DESIGN_CLEAN'] = 0.0
+                proj_dict['SPENT_CONST_CLEAN'] = 0.0
+                proj_dict['CLEAN_NUM'] = clean_num
+                proj_dict['PROGRAM_NUM_CLEAN'] = str(row.get('PROGRAM NUMBER', '')).replace('.0', '').strip()
+                proj_dict['FED_NUM_CLEAN'] = str(row.get('FEDERAL PROJECT NUMBER', '')).strip()
+                proj_dict['PROJECT_TYPE_CLEAN'] = str(row.get('PROJECT TYPE', '')).strip()
+                proj_dict['SOURCE_PM'] = pm_tag
 
-                # String identifiers
-                df['PROGRAM_NUM_CLEAN'] = df[prog_num_col].astype(str).str.strip() if prog_num_col else ""
-                df['FED_NUM_CLEAN'] = df[fed_num_col].astype(str).str.strip() if fed_num_col else ""
-                df['PROJECT_TYPE_CLEAN'] = df[proj_type_col].astype(str).str.strip().str.upper() if proj_type_col else "UNASSIGNED"
+                # Replace NaNs with None for JSON compliance
+                for k, v in proj_dict.items():
+                    if pd.isna(v):
+                        proj_dict[k] = None
 
-                if not df.empty:
-                    df['SOURCE_PM'] = pm_name
-                    all_records.append(df)
-            except Exception as e:
-                print(f"Warning: Could not read {filename}: {e}")
+                all_projects.append(proj_dict)
 
-    if not all_records:
-        print("[×] Error: No valid CSV records found.")
-        return
+            print(f"  [✓] Processed {len(df)} rows from {filename}")
 
-    master_df = pd.concat(all_records, ignore_index=True)
-    master_json = master_df.to_dict(orient='records')
+        except Exception as e:
+            print(f"  [×] Error reading {filename}: {e}")
 
-    # Load spatial vector features from kml/ directory
-    geojson_features = load_all_kml_features()
+    # Preserve existing GeoJSON if available inside current dashboard_data.js
+    existing_geojson = {"type": "FeatureCollection", "features": []}
+    js_out_path = os.path.join(PROJECT_DIR, "dashboard_data.js")
 
-    payload = {
-        "projects": master_json,
-        "geojson": {
-            "type": "FeatureCollection",
-            "features": geojson_features
-        }
+    if os.path.exists(js_out_path):
+        try:
+            with open(js_out_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                match = re.search(r"const\s+DASHBOARD_DATA\s*=\s*(\{.*\});?", content, re.DOTALL)
+                if match:
+                    data_obj = json.loads(match.group(1))
+                    if "geojson" in data_obj:
+                        existing_geojson = data_obj["geojson"]
+        except Exception:
+            pass
+
+    output_data = {
+        "projects": all_projects,
+        "geojson": existing_geojson
     }
 
-    output_js = os.path.join(PROJECT_DIR, 'dashboard_data.js')
-    with open(output_js, 'w', encoding='utf-8') as f:
-        f.write(f"const DASHBOARD_DATA = {json.dumps(payload, indent=2)};")
+    with open(js_out_path, "w", encoding="utf-8") as f:
+        f.write("const DASHBOARD_DATA = ")
+        json.dump(output_data, f, indent=2)
+        f.write(";\n")
 
-    types_found = [t for t in master_df['PROJECT_TYPE_CLEAN'].unique() if t not in ['NAN', 'NULL', 'UNASSIGNED', '']]
-    print(f"\n[✓] Dashboard data updated successfully!")
-    print(f" - {len(master_json)} total project records compiled across {len(all_records)} tabs")
-    print(f" - {len(geojson_features)} map vector shapes loaded from 'kml/' directory")
-    print(f" - Detected Program Types: {types_found}")
+    print(f"\nSuccessfully compiled {len(all_projects)} project records into dashboard_data.js")
 
-if __name__ == '__main__':
-    build_data()
+if __name__ == "__main__":
+    process_all_sheets()

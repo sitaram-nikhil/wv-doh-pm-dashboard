@@ -13,6 +13,7 @@ SHEETS_TO_SYNC = {
     'Rhonda': 'Dashboard_2026_Rhonda.csv',
     'Sharonnia': 'Dashboard_2026_Sharonnia.csv',
     'Travis': 'Dashboard_2026_Travis.csv',
+    'Brian': 'Dashboard_2026_Brian.csv',
     'Complete': 'Dashboard_2026_Complete.csv',
     'Cancelled_Reallocated': 'Dashboard_2026_Cancelled_Reallocated.csv'
 }
