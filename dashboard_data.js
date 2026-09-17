@@ -8263,7 +8263,7 @@ const DASHBOARD_DATA = {
       "CONSTRUCTION\nNOTICE TO PROCEED": null,
       "CONSTRUCTION\nCOMPLETION DATE": null,
       "PROJECT COMPLETION\nPERCENTAGE": "0%",
-      "STATUS UPDATE": "waiting on the resolution and check. Received check and resolution. Authorized; waiting on NTP and cover invoice approval from Travis. 30% recieved 1/30/2026. PFR held March 2026. Drawings revised and sent to sponor and district. PS&E complete. Sponsor applied for construction funds. Sponsor sent over R/W and Utilities statement. ",
+      "STATUS UPDATE": "waiting on the resolution and check. Received check and resolution. Authorized; waiting on NTP and cover invoice approval from Travis. 30% recieved 1/30/2026. PFR held March 2026. Drawings revised and sent to sponor and district. PS&E complete. Sponsor applied for construction funds. Sponsor sent over R/W and Utilities statement. Sent consultant bench details.",
       "PROJECT\nCOMPLETE?": "No",
       "PROJECT\nMANAGER": "Osayaba",
       "PROJECT COMPLETION PERCENTAGE": "0%",
