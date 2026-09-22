@@ -5,22 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TA/RT Program Management Executive Command Center</title>
 
-  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Leaflet CSS & JS (Interactive Mapping) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- AUTO-GENERATED DASHBOARD DATA SCRIPT -->
   <script src="dashboard_data.js"></script>
 
   <style>
@@ -32,17 +26,13 @@
       color: #0f172a; 
     }
     
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
     #map { height: 100%; width: 100%; border-radius: 0.75rem; }
     
-    /* WV EXECUTIVE THEME CARDS */
     .executive-card {
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      box-shadow: 0 1px 3px 0 rgba(0, 40, 85, 0.04), 0 1px 2px -1px rgba(0, 40, 85, 0.04);
+      box-shadow: 0 1px 3px 0 rgba(0, 40, 85, 0.04);
     }
 
     .wv-navy-header {
@@ -50,7 +40,6 @@
       border-bottom: 2px solid #EAAA00;
     }
 
-    /* STATUS LED INDICATORS */
     .led-dot {
       width: 8px;
       height: 8px;
@@ -58,51 +47,22 @@
       display: inline-block;
       flex-shrink: 0;
     }
-    .led-gold { 
-      background-color: #EAAA00; 
-      box-shadow: 0 0 6px rgba(234, 170, 0, 0.6); 
-    }
-    .led-navy { 
-      background-color: #002855; 
-      box-shadow: 0 0 6px rgba(0, 40, 85, 0.4); 
-    }
+    .led-gold { background-color: #EAAA00; box-shadow: 0 0 6px rgba(234, 170, 0, 0.6); }
+    .led-navy { background-color: #002855; box-shadow: 0 0 6px rgba(0, 40, 85, 0.4); }
 
-    /* CUSTOM SCROLLBARS */
-    ::-webkit-scrollbar,
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px !important;
-      height: 6px !important;
-      background-color: #f1f5f9 !important;
-    }
-
-    ::-webkit-scrollbar-track,
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9 !important;
-      border-radius: 6px !important;
-    }
-
-    ::-webkit-scrollbar-thumb,
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1 !important;
-      border-radius: 6px !important;
-    }
-
-    ::-webkit-scrollbar-thumb:hover,
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8 !important;
-    }
+    ::-webkit-scrollbar, .custom-scrollbar::-webkit-scrollbar { width: 6px !important; height: 6px !important; background-color: #f1f5f9 !important; }
+    ::-webkit-scrollbar-track, .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9 !important; border-radius: 6px !important; }
+    ::-webkit-scrollbar-thumb, .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1 !important; border-radius: 6px !important; }
+    ::-webkit-scrollbar-thumb:hover, .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
 
     #detail-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
   </style>
 </head>
 <body class="flex flex-col">
 
-  <!-- TOP NAVIGATION & GLOBAL CONTROLS BAR (WV NAVY & GOLD) -->
   <header class="wv-navy-header px-6 py-3 flex flex-wrap items-center justify-between gap-4 z-20 relative shadow-md">
     <div class="flex items-center space-x-3.5">
-      <div class="bg-[#EAAA00] p-2.5 rounded-xl text-[#002855] font-black text-xl shadow-inner tracking-wider">
-        WV
-      </div>
+      <div class="bg-[#EAAA00] p-2.5 rounded-xl text-[#002855] font-black text-xl shadow-inner tracking-wider">WV</div>
       <div>
         <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
           TA/RT Programs Dashboard
@@ -112,57 +72,46 @@
       </div>
     </div>
 
-    <!-- GLOBAL SEARCH BAR -->
     <div class="flex-1 max-w-md relative">
       <input type="text" id="global-search" oninput="onSearchInput()" 
              placeholder="Search Project Name, Number, Program #, PM, County..." 
-             class="w-full bg-[#001d3d] border border-[#EAAA00]/40 text-white px-4 py-1.5 pl-10 rounded-xl text-sm focus:outline-none focus:border-[#EAAA00] focus:ring-2 focus:ring-[#EAAA00]/20 transition-all duration-200 placeholder-slate-400">
-      <svg class="w-4 h-4 text-[#EAAA00] absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-      </svg>
+             class="w-full bg-[#001d3d] border border-[#EAAA00]/40 text-white px-4 py-1.5 pl-10 rounded-xl text-sm focus:outline-none focus:border-[#EAAA00] focus:ring-2 focus:ring-[#EAAA00]/20 transition-all placeholder-slate-400">
+      <svg class="w-4 h-4 text-[#EAAA00] absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
     </div>
 
-    <!-- FILTERS & VIEW MODE SWITCHER -->
     <div class="flex items-center space-x-2 text-xs font-medium">
-      <select id="filter-type" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
+      <select id="filter-type" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
         <option value="ALL">Program Types</option>
       </select>
 
-      <select id="filter-pm" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
+      <select id="filter-pm" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
         <option value="ALL">Managers</option>
-        <option value="Brian">Brian</option>
-        <option value="Cameron">Cameron</option>
-        <option value="Jennifer">Jennifer</option>
-        <option value="Kyle">Kyle</option>
-        <option value="Kylena">Kylena</option>
-        <option value="Rhonda">Rhonda</option>
-        <option value="Sharonnia">Sharonnia</option>
-        <option value="Travis">Travis</option>
       </select>
 
-      <select id="filter-county" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
+      <select id="filter-county" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
         <option value="ALL">Counties</option>
       </select>
 
-      <select id="filter-status" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] transition-all cursor-pointer">
+      <select id="filter-status" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
         <option value="ALL">Statuses</option>
         <option value="Active">Active Projects</option>
         <option value="Completed">Completed Projects</option>
       </select>
 
-      <!-- VIEW MODE TOGGLE BUTTONS -->
+      <select id="filter-fmis" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
+        <option value="ALL">FMIS Statuses</option>
+        <option value="Active">FMIS Active</option>
+        <option value="Inactive">FMIS Inactive</option>
+        <option value="N/A">FMIS N/A</option>
+      </select>
+
       <div class="flex items-center bg-[#001d3d] p-1 rounded-xl border border-[#EAAA00]/40">
-        <button id="btn-view-grid" onclick="switchView('grid')" class="px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm">
-          Grid View
-        </button>
-        <button id="btn-view-cards" onclick="switchView('cards')" class="px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white">
-          Executive Cards
-        </button>
+        <button id="btn-view-grid" onclick="switchView('grid')" class="px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm">Grid View</button>
+        <button id="btn-view-cards" onclick="switchView('cards')" class="px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white">Executive Cards</button>
       </div>
     </div>
   </header>
 
-  <!-- KPI RIBBON BAR (WV BLUE AND GOLD ACCENTS) -->
   <section class="px-6 py-3 grid grid-cols-2 md:grid-cols-6 gap-3 text-center z-10">
     <div class="executive-card p-3 rounded-xl border border-blue-200 bg-[#E6F0FA] relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
@@ -184,27 +133,25 @@
 
     <div class="executive-card p-3 rounded-xl border border-amber-200 bg-[#FFF8E6] relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#EAAA00]"></div>
-      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Active Projects</span>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Active Master Programs</span>
       <span id="kpi-active-count" class="text-xl font-extrabold text-[#B38200] tracking-tight">0</span>
     </div>
 
     <div class="executive-card p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-emerald-600"></div>
-      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Completed Projects</span>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Completed Programs</span>
       <span id="kpi-completed-count" class="text-xl font-extrabold text-emerald-700 tracking-tight">0</span>
     </div>
 
     <div class="executive-card p-3 rounded-xl border border-slate-300 bg-white relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
-      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Total Compiled</span>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Master Programs</span>
       <span id="kpi-total-count" class="text-xl font-extrabold text-[#002855] tracking-tight">0</span>
     </div>
   </section>
 
-  <!-- MAIN FLEXIBLE DASHBOARD BODY WITH RESIZABLE SPLITTER -->
   <main id="main-container" class="flex-1 flex flex-row px-6 pb-6 min-h-0 relative select-none">
     
-    <!-- LEFT PANEL: MAP WITH PRESET SNAP BUTTONS -->
     <div id="map-panel" class="executive-card p-3 rounded-2xl border border-slate-300 flex flex-col shrink-0" style="width: 25%; min-width: 15%; max-width: 70%;">
       <div class="flex justify-between items-center mb-2 px-1">
         <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider flex items-center gap-1.5">
@@ -212,9 +159,9 @@
         </h2>
         <div class="flex items-center space-x-1">
           <span class="text-[9px] text-slate-500 font-bold uppercase mr-0.5">Snap:</span>
-          <button onclick="setMapWidth(15)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] hover:bg-blue-100 text-[#002855] rounded border border-blue-200 transition-colors">15%</button>
-          <button onclick="setMapWidth(35)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] hover:bg-blue-100 text-[#002855] rounded border border-blue-200 transition-colors">35%</button>
-          <button onclick="setMapWidth(50)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] hover:bg-blue-100 text-[#002855] rounded border border-blue-200 transition-colors">50%</button>
+          <button onclick="setMapWidth(15)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">15%</button>
+          <button onclick="setMapWidth(35)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">35%</button>
+          <button onclick="setMapWidth(50)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">50%</button>
         </div>
       </div>
       <div class="flex-1 relative overflow-hidden rounded-xl border border-slate-200">
@@ -222,15 +169,12 @@
       </div>
     </div>
 
-    <!-- RESIZABLE SPLITTER HANDLE -->
     <div id="drag-handle" class="w-3 flex items-center justify-center cursor-col-resize group px-0.5 z-30 hover:bg-amber-100/50 rounded transition-colors mx-1 shrink-0">
       <div class="w-1.5 h-10 bg-[#002855]/30 group-hover:bg-[#EAAA00] rounded-full transition-colors"></div>
     </div>
 
-    <!-- RIGHT PANEL: ANALYTICS & DATA VIEWS -->
     <div id="grid-panel" class="flex-1 flex flex-col space-y-4 min-h-0 min-w-0">
       
-      <!-- TOP CHART: PIPELINE -->
       <div class="executive-card p-3.5 rounded-2xl border border-slate-300 h-40 flex flex-col shrink-0">
         <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider mb-1">Stage-Gate Milestone Pipeline</h2>
         <div class="flex-1 relative min-h-0 w-full">
@@ -238,20 +182,17 @@
         </div>
       </div>
 
-      <!-- BOTTOM CONTAINER: TOGGLED DATA VIEWS -->
       <div class="flex-1 executive-card p-3.5 rounded-2xl border border-slate-300 flex flex-col min-h-0">
         <div class="flex justify-between items-center mb-2.5">
-          <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider" id="view-title">Active Portfolio Grid</h2>
-          <span class="text-[11px] text-slate-500 font-medium">Click any row or card to inspect details</span>
+          <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider" id="view-title">Active Program Portfolio</h2>
+          <span class="text-[11px] text-slate-500 font-medium">Click master chevron to expand extension phases</span>
         </div>
 
-        <!-- VIEW 1: NATIVE TAILWIND TABLE (WV NAVY HEADER WITH GOLD TEXT) -->
         <div id="grid-view-panel" class="flex-1 w-full h-full min-h-0">
           <div class="w-full h-full overflow-y-auto custom-scrollbar pr-1 flex flex-col space-y-1.5">
-            <!-- Sticky Table Header -->
             <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-[#002855] rounded-xl text-[11px] font-extrabold text-[#EAAA00] uppercase tracking-wider sticky top-0 z-10 border border-[#001d3d] shadow-sm">
-              <div class="col-span-2">State Project #</div>
               <div class="col-span-1">Program #</div>
+              <div class="col-span-2">State Project #</div>
               <div class="col-span-3">Project Name</div>
               <div class="col-span-1">PM</div>
               <div class="col-span-1">County</div>
@@ -259,21 +200,16 @@
               <div class="col-span-1">Consultant</div>
               <div class="col-span-2">Progress</div>
             </div>
-            <!-- Dynamic Native Table Rows Container -->
             <div id="native-table-rows" class="space-y-1.5 flex-1"></div>
           </div>
         </div>
 
-        <!-- VIEW 2: EXECUTIVE CARD GRID -->
         <div id="card-view-panel" class="hidden flex-1 w-full h-full overflow-y-auto custom-scrollbar pr-1">
-          <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <!-- Cards rendered dynamically by JS -->
-          </div>
+          <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </div>
       </div>
     </div>
 
-    <!-- SLIDE-OUT PROJECT DETAIL DRAWER -->
     <aside id="detail-drawer" class="absolute top-0 right-0 h-full w-full max-w-lg bg-white border-l-2 border-[#002855] shadow-2xl z-50 transform translate-x-full p-6 overflow-y-auto flex flex-col">
       <div class="flex justify-between items-center pb-4 border-b border-slate-200">
         <h3 class="text-base font-extrabold text-[#002855]" id="drawer-title">Project Details</h3>
@@ -282,16 +218,16 @@
         </button>
       </div>
 
-      <div class="flex-1 py-4 space-y-5 text-sm" id="drawer-content">
-      </div>
+      <div class="flex-1 py-4 space-y-5 text-sm" id="drawer-content"></div>
     </aside>
   </main>
 
-  <!-- JAVASCRIPT APPLICATION LOGIC -->
   <script>
     let map, pipelineChart;
     let masterProjectData = [];
-    let currentFilteredData = [];
+    let allProgramGroups = [];
+    let currentFilteredGroups = [];
+    let expandedPrograms = new Set();
     let kmlFeatureMap = {};
     let currentViewMode = 'grid';
     let selectedProjectNum = null;
@@ -304,9 +240,7 @@
       loadDashboardData();
 
       document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          closeDrawer();
-        }
+        if (e.key === 'Escape') closeDrawer();
       });
     });
 
@@ -316,7 +250,7 @@
       const mainContainer = document.getElementById('main-container');
       let isDragging = false;
 
-      dragHandle.addEventListener('mousedown', function(e) {
+      dragHandle.addEventListener('mousedown', function() {
         isDragging = true;
         document.body.style.cursor = 'col-resize';
       });
@@ -325,7 +259,6 @@
         if (!isDragging) return;
         const rect = mainContainer.getBoundingClientRect();
         let pct = ((e.clientX - rect.left) / rect.width) * 100;
-        
         if (pct < 12) pct = 12;
         if (pct > 65) pct = 65;
 
@@ -354,20 +287,6 @@
     }
 
     function initMap() {
-      const lightPositron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
-        maxZoom: 19
-      });
-
-      const esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar',
-        maxZoom: 19
-      });
-      const esriLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19
-      });
-      const satelliteHybrid = L.layerGroup([esriImagery, esriLabels]);
-
       const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19
@@ -378,14 +297,6 @@
         zoom: 7,
         layers: [streetLayer]
       });
-
-      const baseMaps = {
-        "Street Map": streetLayer,
-        "Light Canvas": lightPositron,
-        "Satellite Hybrid": satelliteHybrid
-      };
-
-      L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
     }
 
     function initChart() {
@@ -404,94 +315,192 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 10, bottom: 0, left: 10, right: 10 } },
-          plugins: { 
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#002855',
-              titleColor: '#EAAA00',
-              bodyColor: '#ffffff',
-              borderColor: '#EAAA00',
-              borderWidth: 1,
-              padding: 8,
-              displayColors: false
-            }
-          },
+          plugins: { legend: { display: false } },
           scales: {
-            x: { 
-              ticks: { color: '#002855', font: { family: 'Plus Jakarta Sans', size: 10, weight: '700' }, maxRotation: 0, autoSkip: false }, 
-              grid: { display: false } 
-            },
-            y: { 
-              afterFit: (scale) => { scale.width = 30; },
-              ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 10 }, precision: 0 }, 
-              grid: { color: '#e2e8f0' }, 
-              beginAtZero: true 
-            }
+            x: { ticks: { color: '#002855', font: { family: 'Plus Jakarta Sans', size: 10, weight: '700' } }, grid: { display: false } },
+            y: { ticks: { color: '#64748b', precision: 0 }, grid: { color: '#e2e8f0' }, beginAtZero: true }
           }
         }
       });
     }
 
-    function renderNativeTable(data) {
+    function groupProjectsByProgram(flatProjects) {
+      const groupsMap = {};
+      flatProjects.forEach(p => {
+        let prog = (p.PROGRAM_NUM_CLEAN && p.PROGRAM_NUM_CLEAN !== 'nan' && p.PROGRAM_NUM_CLEAN !== 'null') 
+                   ? p.PROGRAM_NUM_CLEAN.toString().trim() 
+                   : '';
+        if (prog.endsWith('.0')) prog = prog.slice(0, -2);
+        
+        const groupKey = prog || p.CLEAN_NUM || `NO-PROG-${p.SOURCE_PM}`;
+
+        const itemCounty = (p.COUNTY && p.COUNTY !== 'NaN' && p.COUNTY !== 'null') ? p.COUNTY.toString().trim() : 'N/A';
+        const itemConsultant = (p.CONSULTANT && p.CONSULTANT !== 'NaN' && p.CONSULTANT !== 'null') ? p.CONSULTANT.toString().trim() : '—';
+        const itemFmis = (p.FMIS_STATUS && p.FMIS_STATUS !== 'NaN' && p.FMIS_STATUS !== 'null') ? p.FMIS_STATUS.toString().trim() : 'N/A';
+
+        if (!groupsMap[groupKey]) {
+          groupsMap[groupKey] = {
+            programNum: prog || '—',
+            groupKey: groupKey,
+            masterName: p['PROJECT NAME'] || 'Untitled Project',
+            pm: p.SOURCE_PM || 'Unassigned',
+            county: itemCounty,
+            consultant: itemConsultant,
+            pms: new Set(),
+            types: new Set(),
+            counties: new Set(),
+            fmisStatuses: new Set(),
+            totalAward: 0,
+            totalValue: 0,
+            totalSupplemental: 0,
+            avgCompletion: 0,
+            isCompleted: true,
+            items: []
+          };
+        } else {
+          if (groupsMap[groupKey].county === 'N/A' && itemCounty !== 'N/A') {
+            groupsMap[groupKey].county = itemCounty;
+          }
+          if (groupsMap[groupKey].consultant === '—' && itemConsultant !== '—') {
+            groupsMap[groupKey].consultant = itemConsultant;
+          }
+        }
+
+        groupsMap[groupKey].items.push(p);
+        if (p.SOURCE_PM) groupsMap[groupKey].pms.add(p.SOURCE_PM);
+        if (itemFmis) groupsMap[groupKey].fmisStatuses.add(itemFmis);
+        
+        const pType = (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase();
+        if (pType) groupsMap[groupKey].types.add(pType);
+
+        if (itemCounty && itemCounty !== 'N/A') groupsMap[groupKey].counties.add(itemCounty);
+
+        groupsMap[groupKey].totalAward += (p.AWARD_CLEAN || 0);
+        groupsMap[groupKey].totalSupplemental += (p.SUPPLEMENTAL_CLEAN || 0);
+        groupsMap[groupKey].totalValue += (p.TOTAL_VALUE_CLEAN || 0);
+      });
+
+      const groupList = Object.values(groupsMap);
+      groupList.forEach(g => {
+        let sumPct = 0;
+        let allItemsComplete = true;
+
+        g.items.forEach(item => {
+          const rawPct = (item['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
+          const itemPct = (parseFloat(rawPct) || 0);
+          sumPct += itemPct;
+
+          if (!item.IS_COMPLETED && itemPct < 100) {
+            allItemsComplete = false;
+          }
+        });
+
+        g.avgCompletion = Math.round(sumPct / g.items.length);
+        g.isCompleted = allItemsComplete || (g.avgCompletion === 100);
+      });
+
+      return groupList;
+    }
+
+    function toggleProgramExpand(groupKey, event) {
+      if (event) event.stopPropagation();
+      if (expandedPrograms.has(groupKey)) {
+        expandedPrograms.delete(groupKey);
+      } else {
+        expandedPrograms.add(groupKey);
+      }
+      renderNativeTable(currentFilteredGroups);
+    }
+
+    function renderNativeTable(groups) {
       const rowsContainer = document.getElementById('native-table-rows');
       if (!rowsContainer) return;
 
-      if (!data || data.length === 0) {
-        rowsContainer.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs font-semibold">No matching project records found.</div>`;
+      if (!groups || groups.length === 0) {
+        rowsContainer.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs font-semibold">No matching program records found.</div>`;
         return;
       }
 
-      rowsContainer.innerHTML = data.map((p, idx) => {
-        const cleanNum = p.CLEAN_NUM || '';
-        const name = p['PROJECT NAME'] || 'Untitled Project';
-        let prog = (p.PROGRAM_NUM_CLEAN && p.PROGRAM_NUM_CLEAN !== 'nan' && p.PROGRAM_NUM_CLEAN !== 'null') ? p.PROGRAM_NUM_CLEAN.toString().trim() : '—';
-        if (prog.endsWith('.0')) prog = prog.slice(0, -2);
+      let html = '';
 
-        const pm = p.SOURCE_PM || 'Unassigned';
-        const county = p.COUNTY || 'N/A';
-        const award = formatCurrency(p.AWARD_CLEAN);
-        const consultant = (p.CONSULTANT && p.CONSULTANT !== 'NaN' && p.CONSULTANT !== 'null') ? p.CONSULTANT : '—';
+      groups.forEach((group, idx) => {
+        const isExpanded = expandedPrograms.has(group.groupKey);
+        const hasExtensions = group.items.length > 1;
 
-        const rawPct = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
-        const pct = Math.min(100, Math.max(0, parseFloat(rawPct) || 0));
-
-        let ledClass = 'led-gold', barColor = 'bg-[#EAAA00]';
-        if (pct === 100) { ledClass = 'led-navy'; barColor = 'bg-[#002855]'; }
-
-        // PM Pill Color Logic
         let pmStyle = "bg-[#FFF8E6] text-[#B38200] border-amber-300";
         if (idx % 2 === 0) pmStyle = "bg-[#E6F0FA] text-[#002855] border-blue-200";
 
-        const isSelected = selectedProjectNum === cleanNum;
-        const rowBg = isSelected 
-          ? 'bg-amber-50/90 border-[#EAAA00] shadow-sm ring-2 ring-[#EAAA00]/40' 
-          : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300';
+        let ledClass = 'led-gold', barColor = 'bg-[#EAAA00]';
+        if (group.avgCompletion === 100) { ledClass = 'led-navy'; barColor = 'bg-[#002855]'; }
 
-        return `
-          <div onclick="onNativeRowClick('${cleanNum}')" 
-               class="grid grid-cols-12 gap-2 px-4 py-2 rounded-xl border items-center text-xs text-slate-700 transition-all cursor-pointer ${rowBg}">
-            <div class="col-span-2">
-              <span class="font-mono text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200 text-[11px]">${cleanNum || '—'}</span>
+        const chevron = hasExtensions ? `
+          <button onclick="toggleProgramExpand('${group.groupKey}', event)" class="mr-1 text-[#002855] hover:text-[#EAAA00] font-black focus:outline-none transition-transform ${isExpanded ? 'rotate-90' : ''}">
+            ▶
+          </button>
+        ` : `<span class="w-3 inline-block"></span>`;
+
+        const extensionTag = hasExtensions ? `
+          <span class="ml-1 px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-[#B38200] rounded-full border border-amber-300 cursor-pointer" onclick="toggleProgramExpand('${group.groupKey}', event)">
+            ${group.items.length} Phases
+          </span>
+        ` : '';
+
+        const masterRowClick = hasExtensions ? `onclick="toggleProgramExpand('${group.groupKey}', event)"` : `onclick="onNativeRowClick('${group.items[0].CLEAN_NUM}')"`;
+
+        html += `
+          <div ${masterRowClick} class="grid grid-cols-12 gap-2 px-4 py-2 rounded-xl border items-center text-xs text-slate-800 bg-white hover:bg-slate-50 border-slate-200 cursor-pointer shadow-sm">
+            <div class="col-span-1 font-mono text-[#002855] font-bold flex items-center truncate">
+              ${chevron} <span class="truncate">${group.programNum}</span>
             </div>
-            <div class="col-span-1 font-mono text-slate-600 font-bold truncate">${prog}</div>
-            <div class="col-span-3 font-bold text-slate-900 truncate">${name}</div>
-            <div class="col-span-1">
-              <span class="px-2 py-0.5 border rounded-full text-[10px] font-bold ${pmStyle}">${pm}</span>
+            <div class="col-span-2 flex items-center">
+              <span class="font-mono text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200 text-[11px] truncate">
+                ${hasExtensions ? 'MASTER-GROUP' : group.items[0].CLEAN_NUM}
+              </span>
+              ${extensionTag}
             </div>
-            <div class="col-span-1 text-slate-600 font-semibold truncate">${county}</div>
-            <div class="col-span-1 font-mono text-[#002855] font-bold">${award}</div>
-            <div class="col-span-1 text-slate-600 font-medium truncate">${consultant}</div>
+            <div class="col-span-3 font-bold text-slate-900 truncate">${group.masterName}</div>
+            <div class="col-span-1"><span class="px-2 py-0.5 border rounded-full text-[10px] font-bold ${pmStyle}">${group.pm}</span></div>
+            <div class="col-span-1 text-slate-600 font-semibold truncate">${group.county}</div>
+            <div class="col-span-1 font-mono text-[#002855] font-bold">${formatCurrency(group.totalAward)}</div>
+            <div class="col-span-1 text-slate-600 font-medium truncate">${group.consultant}</div>
             <div class="col-span-2 flex items-center space-x-2">
               <span class="led-dot ${ledClass}"></span>
               <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
-                <div class="${barColor} h-2 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+                <div class="${barColor} h-2 rounded-full" style="width: ${group.avgCompletion}%"></div>
               </div>
-              <span class="font-mono font-bold text-[11px] text-[#002855] w-8 text-right">${pct}%</span>
+              <span class="font-mono font-bold text-[11px] text-[#002855] w-8 text-right">${group.avgCompletion}%</span>
             </div>
           </div>
         `;
-      }).join('');
+
+        if (hasExtensions && isExpanded) {
+          group.items.forEach(child => {
+            const isSelected = selectedProjectNum === child.CLEAN_NUM;
+            const childBg = isSelected ? 'bg-amber-50 border-[#EAAA00] ring-2 ring-[#EAAA00]/30' : 'bg-slate-50/90 hover:bg-amber-50/50 border-slate-200';
+            const childPct = Math.min(100, Math.max(0, parseFloat((child['PROJECT COMPLETION PERCENTAGE'] || '0').replace(/%/g, '')) || 0));
+
+            html += `
+              <div onclick="onNativeRowClick('${child.CLEAN_NUM}')" class="grid grid-cols-12 gap-2 px-4 py-1.5 ml-6 rounded-lg border items-center text-[11px] text-slate-700 transition-all cursor-pointer ${childBg}">
+                <div class="col-span-1 font-mono text-slate-400 text-[10px] pl-2 border-l-2 border-amber-400">↳ Phase</div>
+                <div class="col-span-2"><span class="font-mono text-slate-800 font-bold bg-white px-2 py-0.5 rounded border border-slate-200 text-[10px]">${child.CLEAN_NUM}</span></div>
+                <div class="col-span-3 font-semibold text-slate-800 truncate">${child['PROJECT NAME'] || group.masterName}</div>
+                <div class="col-span-1 text-slate-500 font-bold">${child.SOURCE_PM}</div>
+                <div class="col-span-1 text-slate-500 truncate">${child.COUNTY || 'N/A'}</div>
+                <div class="col-span-1 font-mono text-slate-900 font-bold">${formatCurrency(child.AWARD_CLEAN)}</div>
+                <div class="col-span-1 text-slate-500 truncate">${child.CONSULTANT || '—'}</div>
+                <div class="col-span-2 flex items-center space-x-2">
+                  <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-[#B38200] h-1.5 rounded-full" style="width: ${childPct}%"></div>
+                  </div>
+                  <span class="font-mono font-bold text-[10px] text-slate-700 w-8 text-right">${childPct}%</span>
+                </div>
+              </div>
+            `;
+          });
+        }
+      });
+
+      rowsContainer.innerHTML = html;
     }
 
     function onNativeRowClick(cleanNum) {
@@ -503,7 +512,7 @@
       const project = masterProjectData.find(p => p.CLEAN_NUM === cleanNum);
       if (project) {
         onProjectRowClick(project);
-        renderNativeTable(currentFilteredData);
+        renderNativeTable(currentFilteredGroups);
       }
     }
 
@@ -513,91 +522,63 @@
       const btnCards = document.getElementById('btn-view-cards');
       const panelGrid = document.getElementById('grid-view-panel');
       const panelCards = document.getElementById('card-view-panel');
-      const title = document.getElementById('view-title');
 
       if (mode === 'grid') {
-        btnGrid.className = "px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm";
-        btnCards.className = "px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white";
+        btnGrid.className = "px-3 py-1 rounded-lg font-extrabold bg-[#EAAA00] text-[#002855] shadow-sm";
+        btnCards.className = "px-3 py-1 rounded-lg font-bold text-slate-300 hover:text-white";
         panelGrid.classList.remove('hidden');
         panelCards.classList.add('hidden');
-        title.innerText = "Active Portfolio Grid";
-        renderNativeTable(currentFilteredData);
+        renderNativeTable(currentFilteredGroups);
       } else {
-        btnCards.className = "px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm";
-        btnGrid.className = "px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white";
+        btnCards.className = "px-3 py-1 rounded-lg font-extrabold bg-[#EAAA00] text-[#002855] shadow-sm";
+        btnGrid.className = "px-3 py-1 rounded-lg font-bold text-slate-300 hover:text-white";
         panelCards.classList.remove('hidden');
         panelGrid.classList.add('hidden');
-        title.innerText = "Executive Project Cards";
-        renderCardView(currentFilteredData);
+        renderCardView(currentFilteredGroups);
       }
     }
 
-    function renderCardView(projects) {
+    function renderCardView(groups) {
       const container = document.getElementById('card-view-container');
       if (!container) return;
 
-      if (!projects || projects.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-3 text-center py-12 text-slate-400">
-            No project records match your filter criteria.
-          </div>`;
+      if (!groups || groups.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400">No matching projects.</div>`;
         return;
       }
 
       let html = '';
-      projects.forEach(p => {
-        const pName = p['PROJECT NAME'] || 'Untitled Project';
-        const stateNum = p['STATE PROJECT NUMBER'] || p.CLEAN_NUM || 'N/A';
-        
-        let programNum = (p.PROGRAM_NUM_CLEAN && p.PROGRAM_NUM_CLEAN !== 'nan' && p.PROGRAM_NUM_CLEAN !== 'null') ? p.PROGRAM_NUM_CLEAN.toString().trim() : 'N/A';
-        if (programNum.endsWith('.0')) programNum = programNum.slice(0, -2);
 
-        const pm = p.SOURCE_PM || 'Unassigned';
-        const county = p.COUNTY || 'N/A';
-        
-        const rawPct = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
-        const pct = Math.min(100, Math.max(0, parseFloat(rawPct) || 0));
-
-        let ledClass = 'led-gold', barColor = 'bg-[#EAAA00]';
-        if (pct === 100) { ledClass = 'led-navy'; barColor = 'bg-[#002855]'; }
-
-        const cleanNum = p.CLEAN_NUM || '';
-
+      groups.forEach(g => {
         html += `
-          <div onclick="onProjectCardClick('${cleanNum}')" class="executive-card p-3.5 rounded-xl border border-slate-200 hover:border-[#EAAA00] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3">
+          <div onclick="onProjectCardClick('${g.items[0].CLEAN_NUM}')" class="executive-card p-3.5 rounded-xl border border-slate-200 hover:border-[#EAAA00] cursor-pointer flex flex-col justify-between space-y-3">
             <div>
               <div class="flex justify-between items-start mb-1.5 gap-2">
-                <span class="font-mono text-xs text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200">${stateNum}</span>
-                <span class="px-2 py-0.5 text-[10px] rounded-full bg-[#FFF8E6] border border-amber-300 text-[#B38200] font-bold">${pm}</span>
+                <span class="font-mono text-xs text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200">Prog #: ${g.programNum}</span>
+                <span class="px-2 py-0.5 text-[10px] rounded-full bg-[#FFF8E6] border border-amber-300 text-[#B38200] font-bold">${g.pm}</span>
               </div>
-              <h3 class="font-bold text-[#002855] text-sm leading-tight line-clamp-1 mb-1">${pName}</h3>
-              <div class="flex items-center space-x-2 text-[11px] text-slate-500">
-                <span>County: <strong class="text-slate-700">${county}</strong></span>
-                <span>•</span>
-                <span>Prog #: <strong class="text-slate-700 font-mono">${programNum}</strong></span>
-              </div>
+              <h3 class="font-bold text-[#002855] text-sm leading-tight line-clamp-1 mb-1">${g.masterName}</h3>
+              <div class="text-[11px] text-slate-500">Phases: <strong class="text-slate-800 font-mono">${g.items.length}</strong> | County: <strong class="text-slate-800">${g.county}</strong></div>
             </div>
 
             <div class="space-y-1.5">
               <div class="flex justify-between items-center text-xs">
-                <span class="flex items-center gap-1.5 text-slate-500 font-medium">
-                  <span class="led-dot ${ledClass}"></span> Completion
-                </span>
-                <span class="font-mono text-[#002855] font-bold">${pct}%</span>
+                <span class="text-slate-500 font-medium">Average Progress</span>
+                <span class="font-mono text-[#002855] font-bold">${g.avgCompletion}%</span>
               </div>
               <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
-                <div class="${barColor} h-2 rounded-full" style="width: ${pct}%"></div>
+                <div class="bg-[#EAAA00] h-2 rounded-full" style="width: ${g.avgCompletion}%"></div>
               </div>
             </div>
 
             <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
               <div>
-                <span class="text-[10px] text-slate-400 block uppercase">Award</span>
-                <span class="font-mono text-[#002855] font-bold">${formatCurrency(p.AWARD_CLEAN)}</span>
+                <span class="text-[10px] text-slate-400 block uppercase">Total Award</span>
+                <span class="font-mono text-[#002855] font-bold">${formatCurrency(g.totalAward)}</span>
               </div>
               <div class="text-right">
                 <span class="text-[10px] text-slate-400 block uppercase">Total Value</span>
-                <span class="font-mono text-[#B38200] font-extrabold">${formatCurrency(p.TOTAL_VALUE_CLEAN)}</span>
+                <span class="font-mono text-[#B38200] font-extrabold">${formatCurrency(g.totalValue)}</span>
               </div>
             </div>
           </div>
@@ -632,21 +613,17 @@
           obj.innerText = Math.round(currentVal).toLocaleString();
         }
 
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-        }
+        if (progress < 1) window.requestAnimationFrame(step);
       }
       window.requestAnimationFrame(step);
     }
 
-    function updatePipelineChart(data) {
+    function updatePipelineChart(groups) {
       if (!pipelineChart) return;
-
       const counts = [0, 0, 0, 0, 0];
-      data.forEach(p => {
-        const rawVal = (p['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
-        const pct = parseFloat(rawVal) || 0;
-
+      
+      groups.forEach(g => {
+        const pct = g.avgCompletion || 0;
         if (pct <= 20) counts[0]++;
         else if (pct <= 50) counts[1]++;
         else if (pct <= 75) counts[2]++;
@@ -660,26 +637,30 @@
 
     function loadDashboardData() {
       if (typeof DASHBOARD_DATA === 'undefined') {
-        console.error("DASHBOARD_DATA is missing. Run auto_sync.py first.");
+        console.error("DASHBOARD_DATA missing. Run auto_sync.py first.");
         return;
       }
 
       masterProjectData = DASHBOARD_DATA.projects || [];
-      currentFilteredData = masterProjectData;
+      allProgramGroups = groupProjectsByProgram(masterProjectData);
+      currentFilteredGroups = allProgramGroups;
 
-      renderNativeTable(masterProjectData);
+      renderNativeTable(allProgramGroups);
 
-      const rawTypes = masterProjectData.map(p => 
-        (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase()
-      );
+      const rawPms = masterProjectData.map(p => (p.SOURCE_PM || '').toString().trim());
+      const pms = [...new Set(rawPms)].filter(m => m && m !== 'NaN' && m !== 'null' && m !== 'Unassigned').sort();
+      const pmSelect = document.getElementById('filter-pm');
+      if (pmSelect) {
+        pmSelect.innerHTML = '<option value="ALL">Managers</option>';
+        pms.forEach(m => pmSelect.innerHTML += `<option value="${m}">${m}</option>`);
+      }
+
+      const rawTypes = masterProjectData.map(p => (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase());
       const types = [...new Set(rawTypes)].filter(t => t && t !== 'NAN' && t !== 'NULL' && t !== 'UNASSIGNED').sort();
-      
       const typeSelect = document.getElementById('filter-type');
       if (typeSelect) {
         typeSelect.innerHTML = '<option value="ALL">Program Types</option>';
-        types.forEach(t => {
-          typeSelect.innerHTML += `<option value="${t}">${t}</option>`;
-        });
+        types.forEach(t => typeSelect.innerHTML += `<option value="${t}">${t}</option>`);
       }
 
       const rawCounties = masterProjectData.map(p => (p.COUNTY || '').toString().trim());
@@ -687,28 +668,18 @@
       const countySelect = document.getElementById('filter-county');
       if (countySelect) {
         countySelect.innerHTML = '<option value="ALL">Counties</option>';
-        counties.forEach(c => {
-          countySelect.innerHTML += `<option value="${c}">${c}</option>`;
-        });
+        counties.forEach(c => countySelect.innerHTML += `<option value="${c}">${c}</option>`);
       }
 
       if (DASHBOARD_DATA.geojson && DASHBOARD_DATA.geojson.features.length > 0) {
         const geoLayer = L.geoJSON(DASHBOARD_DATA.geojson, {
           style: { color: '#002855', weight: 3, opacity: 0.85, fillColor: '#EAAA00', fillOpacity: 0.35 },
           pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 7,
-              fillColor: "#EAAA00",
-              color: "#002855",
-              weight: 2,
-              opacity: 1,
-              fillOpacity: 0.95
-            });
+            return L.circleMarker(latlng, { radius: 7, fillColor: "#EAAA00", color: "#002855", weight: 2, opacity: 1, fillOpacity: 0.95 });
           },
           onEachFeature: function(feature, featureLayer) {
             const cleanNum = feature.properties.clean_num;
             const cleanName = feature.properties.clean_name;
-
             if (cleanNum) kmlFeatureMap[cleanNum] = featureLayer;
             if (cleanName) kmlFeatureMap[cleanName] = featureLayer;
 
@@ -722,7 +693,7 @@
               if (matchedProj) {
                 selectedProjectNum = matchedProj.CLEAN_NUM;
                 onProjectRowClick(matchedProj);
-                renderNativeTable(currentFilteredData);
+                renderNativeTable(currentFilteredGroups);
               }
             });
           }
@@ -733,52 +704,72 @@
         }
       }
 
-      updatePipelineChart(masterProjectData);
-      updateKPIs(masterProjectData);
+      updatePipelineChart(allProgramGroups);
+      updateKPIs(allProgramGroups);
     }
 
     function onSearchInput() {
       const query = document.getElementById('global-search').value.toLowerCase();
-      const searched = currentFilteredData.filter(p => {
-        const name = (p['PROJECT NAME'] || '').toLowerCase();
-        const num = (p['STATE PROJECT NUMBER'] || p.CLEAN_NUM || '').toLowerCase();
-        const prog = (p.PROGRAM_NUM_CLEAN || '').toLowerCase();
-        const pm = (p.SOURCE_PM || '').toLowerCase();
-        const county = (p.COUNTY || '').toLowerCase();
+      
+      const searchedGroups = currentFilteredGroups.filter(g => {
+        const name = g.masterName.toLowerCase();
+        const prog = g.programNum.toLowerCase();
+        const pmsStr = Array.from(g.pms).join(' ').toLowerCase();
+        const countiesStr = Array.from(g.counties).join(' ').toLowerCase();
 
-        return name.includes(query) || num.includes(query) || prog.includes(query) || pm.includes(query) || county.includes(query);
+        const childMatches = g.items.some(item => {
+          const cNum = (item['STATE PROJECT NUMBER'] || item.CLEAN_NUM || '').toLowerCase();
+          const cName = (item['PROJECT NAME'] || '').toLowerCase();
+          return cNum.includes(query) || cName.includes(query);
+        });
+
+        return name.includes(query) || prog.includes(query) || pmsStr.includes(query) || countiesStr.includes(query) || childMatches;
       });
 
-      if (currentViewMode === 'cards') renderCardView(searched);
-      else renderNativeTable(searched);
+      if (currentViewMode === 'cards') renderCardView(searchedGroups);
+      else renderNativeTable(searchedGroups);
     }
 
     function applyFilters() {
       const pm = document.getElementById('filter-pm').value;
       const status = document.getElementById('filter-status').value;
+      const fmisStatus = document.getElementById('filter-fmis') ? document.getElementById('filter-fmis').value : 'ALL';
       const selectedType = document.getElementById('filter-type') ? document.getElementById('filter-type').value.trim().toUpperCase() : 'ALL';
       const selectedCounty = document.getElementById('filter-county') ? document.getElementById('filter-county').value : 'ALL';
 
-      currentFilteredData = masterProjectData.filter(p => {
-        const matchesPM = (pm === 'ALL' || p.SOURCE_PM === pm);
-        const matchesStatus = (status === 'ALL' || 
-          (status === 'Active' && p.SOURCE_PM !== 'Completed') ||
-          (status === 'Completed' && p.SOURCE_PM === 'Completed'));
-        
-        const projType = (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase();
-        const matchesType = (selectedType === 'ALL' || projType === selectedType);
+      currentFilteredGroups = allProgramGroups.filter(g => {
+        let matchesStatus = true;
+        if (status === 'Active') matchesStatus = !g.isCompleted;
+        else if (status === 'Completed') matchesStatus = g.isCompleted;
 
-        const projCounty = (p.COUNTY || '').toString().trim();
-        const matchesCounty = (selectedCounty === 'ALL' || projCounty === selectedCounty);
+        let matchesFMIS = (fmisStatus === 'ALL');
+        if (!matchesFMIS) {
+          matchesFMIS = g.fmisStatuses.has(fmisStatus);
+        }
 
-        return matchesPM && matchesStatus && matchesType && matchesCounty;
+        let matchesPM = (pm === 'ALL');
+        if (!matchesPM) {
+          matchesPM = Array.from(g.pms).some(pName => pName.toLowerCase() === pm.toLowerCase());
+        }
+
+        let matchesType = (selectedType === 'ALL');
+        if (!matchesType) {
+          matchesType = g.types.has(selectedType);
+        }
+
+        let matchesCounty = (selectedCounty === 'ALL');
+        if (!matchesCounty) {
+          matchesCounty = g.counties.has(selectedCounty);
+        }
+
+        return matchesStatus && matchesFMIS && matchesPM && matchesType && matchesCounty;
       });
 
-      if (currentViewMode === 'cards') renderCardView(currentFilteredData);
-      else renderNativeTable(currentFilteredData);
+      if (currentViewMode === 'cards') renderCardView(currentFilteredGroups);
+      else renderNativeTable(currentFilteredGroups);
       
-      updatePipelineChart(currentFilteredData);
-      updateKPIs(currentFilteredData);
+      updatePipelineChart(currentFilteredGroups);
+      updateKPIs(currentFilteredGroups);
     }
 
     function onProjectRowClick(project) {
@@ -787,11 +778,8 @@
       
       const layer = kmlFeatureMap[pNum] || kmlFeatureMap[pName];
       if (layer) {
-        if (layer.getBounds) {
-          map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.2 });
-        } else if (layer.getLatLng) {
-          map.flyTo(layer.getLatLng(), 15, { duration: 1.2 });
-        }
+        if (layer.getBounds) map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.2 });
+        else if (layer.getLatLng) map.flyTo(layer.getLatLng(), 15, { duration: 1.2 });
       }
 
       document.getElementById('drawer-title').innerText = project['PROJECT NAME'] || 'Project Details';
@@ -800,17 +788,28 @@
       let programNum = (project.PROGRAM_NUM_CLEAN && project.PROGRAM_NUM_CLEAN !== 'nan' && project.PROGRAM_NUM_CLEAN !== 'null') ? project.PROGRAM_NUM_CLEAN.toString().trim() : 'N/A';
       if (programNum.endsWith('.0')) programNum = programNum.slice(0, -2);
 
-      const cleanPct = (project['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
+      let fmisBadgeClass = 'bg-slate-100 text-slate-700 border-slate-300';
+      let fmisBadgeText = 'FMIS N/A';
+
+      if (project.FMIS_STATUS === 'Active') {
+        fmisBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        fmisBadgeText = 'FMIS Active';
+      } else if (project.FMIS_STATUS === 'Inactive') {
+        fmisBadgeClass = 'bg-red-100 text-red-800 border-red-300';
+        fmisBadgeText = 'FMIS Inactive';
+      }
+
+      const fmisBadge = `<span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full border ${fmisBadgeClass}">${fmisBadgeText}</span>`;
 
       const content = `
-        <div class="bg-[#E6F0FA] p-3.5 rounded-xl border border-blue-200 grid grid-cols-2 gap-2">
+        <div class="bg-[#E6F0FA] p-3.5 rounded-xl border border-blue-200 grid grid-cols-2 gap-2 items-center">
           <div>
             <div class="text-[11px] text-slate-500 font-medium">State Project Number</div>
             <div class="font-mono text-[#002855] font-bold text-sm">${project['STATE PROJECT NUMBER'] || 'N/A'}</div>
           </div>
-          <div>
-            <div class="text-[11px] text-slate-500 font-medium">Program Number</div>
-            <div class="font-mono text-slate-800 font-bold text-sm">${programNum}</div>
+          <div class="text-right">
+            <div class="text-[11px] text-slate-500 font-medium mb-0.5">FMIS Accounting</div>
+            <div>${fmisBadge}</div>
           </div>
         </div>
 
@@ -820,6 +819,10 @@
             <span class="font-bold text-[#002855]">${project.SOURCE_PM || 'Unassigned'}</span>
           </div>
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[11px] text-slate-500 block font-medium">Program Number</span>
+            <span class="font-bold text-slate-900 font-mono">${programNum}</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
             <span class="text-[11px] text-slate-500 block font-medium">County</span>
             <span class="font-bold text-slate-900">${project.COUNTY || 'N/A'}</span>
           </div>
@@ -827,34 +830,17 @@
             <span class="text-[11px] text-slate-500 block font-medium">Consultant</span>
             <span class="font-bold text-slate-800">${consultant}</span>
           </div>
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span class="text-[11px] text-slate-500 block font-medium">% Complete</span>
-            <span class="font-bold text-[#B38200]">${cleanPct}%</span>
-          </div>
         </div>
 
         <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
           <h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider border-b border-slate-200 pb-1.5">Financial Breakdown</h4>
-          
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <span class="text-slate-500 block">Award Value:</span>
-              <span class="font-mono text-[#002855] font-bold">${formatCurrency(project.AWARD_CLEAN)}</span>
-            </div>
-            <div>
-              <span class="text-slate-500 block">Supplemental:</span>
-              <span class="font-mono text-blue-700 font-bold">${formatCurrency(project.SUPPLEMENTAL_CLEAN)}</span>
-            </div>
+            <div><span class="text-slate-500 block">Award Value:</span><span class="font-mono text-[#002855] font-bold">${formatCurrency(project.AWARD_CLEAN)}</span></div>
+            <div><span class="text-slate-500 block">Supplemental:</span><span class="font-mono text-blue-700 font-bold">${formatCurrency(project.SUPPLEMENTAL_CLEAN)}</span></div>
           </div>
-
           <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex justify-between items-center text-xs">
             <span class="text-slate-700 font-semibold">Total Value (Award + Supp):</span>
             <span class="font-mono text-[#B38200] font-extrabold text-sm">${formatCurrency(project.TOTAL_VALUE_CLEAN)}</span>
-          </div>
-
-          <div class="border-t border-slate-200 pt-2 space-y-1 text-xs">
-            <div class="flex justify-between"><span>Design Spend:</span><span class="font-mono text-slate-700">${formatCurrency(project.SPENT_DESIGN_CLEAN)}</span></div>
-            <div class="flex justify-between"><span>Construction Spend:</span><span class="font-mono text-slate-700">${formatCurrency(project.SPENT_CONST_CLEAN)}</span></div>
           </div>
         </div>
 
@@ -871,7 +857,7 @@
     function closeDrawer() {
       document.getElementById('detail-drawer').classList.add('translate-x-full');
       selectedProjectNum = null;
-      renderNativeTable(currentFilteredData);
+      renderNativeTable(currentFilteredGroups);
     }
 
     function formatCurrency(val) {
@@ -879,24 +865,28 @@
       return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function updateKPIs(data) {
-      let awarded = 0, totalValue = 0, totalSupp = 0, active = 0, completed = 0;
-      data.forEach(p => {
-        awarded += p.AWARD_CLEAN || 0;
-        totalValue += p.TOTAL_VALUE_CLEAN || 0;
-        totalSupp += p.SUPPLEMENTAL_CLEAN || 0;
-        if (p.SOURCE_PM === 'Completed') completed++; else active++;
+    function updateKPIs(groups) {
+      let awarded = 0, totalValue = 0, totalSupp = 0;
+      let activeGroups = 0, completedGroups = 0;
+
+      groups.forEach(g => {
+        awarded += g.totalAward || 0;
+        totalValue += g.totalValue || 0;
+        totalSupp += g.totalSupplemental || 0;
+
+        if (g.isCompleted) completedGroups++;
+        else activeGroups++;
       });
 
       animateCounter('kpi-awarded', currentKpiValues.awarded, awarded, true);
       animateCounter('kpi-total-value', currentKpiValues.totalValue, totalValue, true);
       animateCounter('kpi-total-supp', currentKpiValues.totalSupp, totalSupp, true);
 
-      animateCounter('kpi-active-count', currentKpiValues.active, active, false);
-      animateCounter('kpi-completed-count', currentKpiValues.completed, completed, false);
-      animateCounter('kpi-total-count', currentKpiValues.total, data.length, false);
+      animateCounter('kpi-active-count', currentKpiValues.active, activeGroups, false);
+      animateCounter('kpi-completed-count', currentKpiValues.completed, completedGroups, false);
+      animateCounter('kpi-total-count', currentKpiValues.total, groups.length, false);
 
-      currentKpiValues = { awarded, totalValue, totalSupp, active, completed, total: data.length };
+      currentKpiValues = { awarded, totalValue, totalSupp, active: activeGroups, completed: completedGroups, total: groups.length };
     }
   </script>
 </body>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WVDOH Local AI Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 p-8 font-sans">
+  <div class="max-w-2xl mx-auto space-y-4">
+    <h1 class="text-xl font-bold">WVDOH Local WebLLM Assistant Test</h1>
+    
+    <!-- Status & Progress -->
+    <div id="status" class="p-3 bg-slate-800 rounded text-sm text-cyan-400">
+      Initializing AI Engine...
+    </div>
+
+    <!-- User Input -->
+    <div class="flex gap-2">
+      <input id="promptInput" type="text" placeholder="Ask a question about your project dataset..." disabled
+             class="flex-1 p-2 bg-slate-800 border border-slate-700 rounded text-white disabled:opacity-50" />
+      <button id="sendBtn" disabled onclick="askAI()"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded font-semibold disabled:opacity-50">
+        Send
+      </button>
+    </div>
+
+    <!-- Output Box -->
+    <div id="output" class="p-4 bg-slate-950 border border-slate-800 rounded min-h-[120px] whitespace-pre-wrap text-slate-300">
+      Output will appear here...
+    </div>
+  </div>
+
+  <!-- Load Dashboard Data -->
+  <script src="dashboard_data.js"></script>
+
+  <!-- WebLLM In-Browser Engine Script -->
+  <script type="module">
+    import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+
+    const statusEl = document.getElementById("status");
+    const inputEl = document.getElementById("promptInput");
+    const btnEl = document.getElementById("sendBtn");
+    const outputEl = document.getElementById("output");
+
+    let engine = null;
+    const MODEL_ID = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+
+    async function initAI() {
+      try {
+        engine = await CreateMLCEngine(MODEL_ID, {
+          initProgressCallback: (progress) => {
+            statusEl.textContent = `Loading Model: ${progress.text}`;
+          }
+        });
+        statusEl.textContent = "AI Engine Ready (Running 100% locally via WebGPU)";
+        inputEl.disabled = false;
+        btnEl.disabled = false;
+      } catch (err) {
+        statusEl.textContent = "Error loading WebGPU: " + err.message;
+      }
+    }
+
+    window.askAI = async function() {
+      const prompt = inputEl.value.trim();
+      if (!prompt) return;
+
+      outputEl.textContent = "Thinking...";
+      
+      // Target your dataset variable (adjust 'dashboardData' if your variable name differs)
+      const dataPayload = window.dashboardData || window.projects || [];
+      
+      const systemPrompt = `You are an AI co-pilot for WVDOH Performance Management. 
+Answer concisely based ONLY on this dataset: ${JSON.stringify(dataPayload).slice(0, 3000)}`;
+
+      const response = await engine.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ]
+      });
+
+      outputEl.textContent = response.choices[0].message.content;
+    };
+
+    initAI();
+  </script>
+</body>
+</html>
