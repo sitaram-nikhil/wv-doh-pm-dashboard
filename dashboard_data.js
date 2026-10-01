@@ -11557,7 +11557,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Completed",
       "IS_COMPLETED": true,
-      "FMIS_STATUS": "Active"
+      "FMIS_STATUS": "Inactive"
     },
     {
       "AWARD\n YEAR": "2014",
@@ -16693,7 +16693,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Cancelled",
       "IS_COMPLETED": true,
-      "FMIS_STATUS": "Active"
+      "FMIS_STATUS": "Inactive"
     },
     {
       "AWARD\n YEAR": "2014",
