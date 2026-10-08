@@ -8204,7 +8204,7 @@ const DASHBOARD_DATA = {
       "PS&E\nSUBMITTED": null,
       "LETTING DATE": null,
       "PROJECT COMPLETION\nPERCENTAGE": null,
-      "STATUS UPDATE": "Will use internal funding to complete project. Agreeement drafted. Location and adverting options is being discussed. Submitted for authorization on 8/25/2026. Agreement with sponsor waiting signature.",
+      "STATUS UPDATE": "Will use internal funding to complete project. Agreeement drafted. Location and adverting options is being discussed. Submitted for authorization on 8/25/2026. Agreement with sponsor waiting signature. 10/08/2026 Met with sponosor to dicuss agreement.",
       "PROJECT\nCOMPLETE?": null,
       "PROJECT\nMANAGER": null,
       "PROJECT COMPLETION PERCENTAGE": "0%",
