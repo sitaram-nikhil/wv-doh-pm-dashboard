@@ -5825,7 +5825,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Rhonda",
       "ORIGINAL_TAB": "Rhonda",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "Inactive"
+      "FMIS_STATUS": "N/A"
     },
     {
       "AWARD\n YEAR": null,
