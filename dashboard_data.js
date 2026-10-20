@@ -4138,7 +4138,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Kylena",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "Inactive"
+      "FMIS_STATUS": "N/A"
     },
     {
       "AWARD\n YEAR": "2020",
@@ -4348,7 +4348,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Kylena",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "Inactive"
+      "FMIS_STATUS": "N/A"
     },
     {
       "AWARD\n YEAR": "2022",
@@ -4642,7 +4642,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Kylena",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "Inactive"
+      "FMIS_STATUS": "N/A"
     },
     {
       "AWARD\n YEAR": "2023",
