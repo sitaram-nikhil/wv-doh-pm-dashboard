@@ -1331,7 +1331,7 @@ const DASHBOARD_DATA = {
       "30% PLANS\nRECEIVED": null,
       "90% PLANS\nRECEIVED": null,
       "NEPA \nCOMPLETE": null,
-      "PS&E\nSUBMITTED": null,
+      "PS&E\nSUBMITTED": "10/28/2026",
       "LETTING DATE": null,
       "PROJECT COMPLETION\nPERCENTAGE": "0%",
       "STATUS UPDATE": " 2023 Special State Funded Award. Scoping meeting held  October 8th. Sponsor will request Force Account permission. As of 9/22/2026 Project manager is waiting on soft pack (plans) and Enviromental.    Fully executed agreement. ",
