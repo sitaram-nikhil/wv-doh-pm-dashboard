@@ -460,7 +460,7 @@ const DASHBOARD_DATA = {
       "PS&E\nSUBMITTED": null,
       "LETTING DATE": null,
       "PROJECT COMPLETION\nPERCENTAGE": "10%",
-      "STATUS UPDATE": "Agreement/match check recieved 10/10/25. LA being drafted. Authorized, NTP sent to consultant. 30% plans submitted 4/7/26. Next submittal expected October 2026.",
+      "STATUS UPDATE": "Agreement/match check recieved 10/10/25. LA being drafted. Authorized, NTP sent to consultant. 30% plans submitted 4/7/26. Next submittal expected October 2026. 90% plans submitted 10/28/26.",
       "PROJECT\nCOMPLETE?": "No",
       "PROJECT\nMANAGER": "Hunt",
       "Unnamed: 22": "D",
