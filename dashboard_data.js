@@ -1054,7 +1054,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Cameron",
       "ORIGINAL_TAB": "Cameron",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "N/A"
+      "FMIS_STATUS": "Active"
     },
     {
       "AWARD\n YEAR": "2016",
@@ -3970,7 +3970,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Kylena",
       "IS_COMPLETED": true,
-      "FMIS_STATUS": "N/A"
+      "FMIS_STATUS": "Active"
     },
     {
       "AWARD\n YEAR": "2020",
@@ -4390,7 +4390,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Kylena",
       "ORIGINAL_TAB": "Kylena",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "N/A"
+      "FMIS_STATUS": "Active"
     },
     {
       "AWARD\n YEAR": "2022",
@@ -6255,7 +6255,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Rhonda",
       "ORIGINAL_TAB": "Rhonda",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "N/A"
+      "FMIS_STATUS": "Active"
     },
     {
       "AWARD\n YEAR": null,
@@ -6298,7 +6298,7 @@ const DASHBOARD_DATA = {
       "SOURCE_PM": "Rhonda",
       "ORIGINAL_TAB": "Rhonda",
       "IS_COMPLETED": false,
-      "FMIS_STATUS": "N/A"
+      "FMIS_STATUS": "Active"
     },
     {
       "AWARD\n YEAR": "2023",
