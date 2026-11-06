@@ -548,7 +548,7 @@ const DASHBOARD_DATA = {
       "PS&E\nSUBMITTED": null,
       "LETTING DATE": null,
       "PROJECT COMPLETION\nPERCENTAGE": null,
-      "STATUS UPDATE": "SOW 10/8/25. Revised scope notes sent to consultant 10/28/25. Blank fee proposal recieved. Agreement sent to legal 8/11/26. Sponsor returned agreement October 2026.",
+      "STATUS UPDATE": "SOW 10/8/25. Revised scope notes sent to consultant 10/28/25. Blank fee proposal recieved. Agreement sent to legal 8/11/26. Sponsor returned agreement October 2026. Authorized 11/4/26.",
       "PROJECT\nCOMPLETE?": "No",
       "PROJECT\nMANAGER": "Hunt",
       "Unnamed: 22": "D",
