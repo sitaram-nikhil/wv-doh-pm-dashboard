@@ -8,47 +8,41 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
   <script src="dashboard_data.js"></script>
+  <script src="sync_status.js"></script>
 
   <style>
-    body { 
+    body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      height: 100vh; 
-      overflow: hidden; 
-      background-color: #f8fafc; 
-      color: #0f172a; 
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
-    
     .font-mono { font-family: 'JetBrains Mono', monospace; }
     #map { height: 100%; width: 100%; border-radius: 0.75rem; }
-    
+
     .executive-card {
       background: #ffffff;
       border: 1px solid #cbd5e1;
       box-shadow: 0 1px 3px 0 rgba(0, 40, 85, 0.04);
     }
-
     .wv-navy-header {
       background: #002855;
       border-bottom: 2px solid #EAAA00;
     }
-
-    .led-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      flex-shrink: 0;
-    }
+    .led-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
     .led-gold { background-color: #EAAA00; box-shadow: 0 0 6px rgba(234, 170, 0, 0.6); }
     .led-navy { background-color: #002855; box-shadow: 0 0 6px rgba(0, 40, 85, 0.4); }
+    .led-gray { background-color: #cbd5e1; }
 
     ::-webkit-scrollbar, .custom-scrollbar::-webkit-scrollbar { width: 6px !important; height: 6px !important; background-color: #f1f5f9 !important; }
     ::-webkit-scrollbar-track, .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9 !important; border-radius: 6px !important; }
@@ -56,11 +50,69 @@
     ::-webkit-scrollbar-thumb:hover, .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
 
     #detail-drawer { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .hdr-select { background: #001d3d; border: 1px solid rgba(234, 170, 0, 0.5); color: #fff; padding: 0.375rem 0.75rem;
+      border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500; max-width: 132px; }
+    .hdr-select:focus { outline: none; border-color: #EAAA00; }
+    .seg-btn { padding: 0.25rem 0.75rem; border-radius: 0.5rem; font-weight: 700; color: #cbd5e1; font-size: 0.75rem; white-space: nowrap; }
+    .seg-btn:hover { color: #fff; }
+    .seg-btn.on { background: #EAAA00; color: #002855; font-weight: 800; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+    .tab-btn { padding: 0.3rem 0.8rem; border-radius: 0.6rem; font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #002855; border: 1px solid #bfdbfe; background: #E6F0FA; white-space: nowrap; }
+    .tab-btn:hover { border-color: #EAAA00; }
+    .tab-btn.on { background: #002855; color: #EAAA00; border-color: #001d3d; }
+    .tab-btn .cnt { margin-left: 4px; padding: 0 6px; border-radius: 999px; background: #EAAA00; color: #002855; font-size: 10px; }
+    .action-btn { padding: 0.2rem 0.65rem; border-radius: 0.5rem; font-size: 11px; font-weight: 800; border: 1px solid #fcd34d;
+      background: #FFF8E6; color: #B38200; white-space: nowrap; }
+    .action-btn:hover { background: #EAAA00; color: #002855; }
+    .action-btn.primary { background: #002855; color: #EAAA00; border-color: #001d3d; }
+    .action-btn.primary:hover { background: #001d3d; }
+
+    /* Tables used on the Data Issues, Managers, FMIS and Trends views */
+    .xtable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+    .xtable th { position: sticky; top: 0; z-index: 5; background: #002855; color: #EAAA00; text-transform: uppercase;
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-align: left; padding: 8px 10px; white-space: nowrap; }
+    .xtable th:first-child { border-top-left-radius: 0.75rem; }
+    .xtable th:last-child { border-top-right-radius: 0.75rem; }
+    .xtable td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; background: #fff; }
+    .xtable tr.click td { cursor: pointer; }
+    .xtable tr.click:hover td { background: #FFF8E6; }
+    .xtable .num { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #002855; }
+    .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; border: 1px solid; white-space: nowrap; }
+    .pill-red { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .pill-amber { background: #FFF8E6; color: #B38200; border-color: #fcd34d; }
+    .pill-green { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+    .pill-blue { background: #E6F0FA; color: #002855; border-color: #bfdbfe; }
+    .pill-gray { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+
+    .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #002855; color: #fff; border: 1px solid #EAAA00;
+      padding: 8px 16px; border-radius: 0.75rem; font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 2000; }
+    .toast.show { opacity: 1; }
+
+    #print-summary { display: none; }
+
+    /* Narrow screens (side panel, laptop): stack the map above the grid and let the page scroll */
+    @media (max-width: 1023px) {
+      body { height: auto; overflow: auto; }
+      #main-container { flex-direction: column; }
+      #map-panel { width: 100% !important; max-width: none !important; height: 340px; margin-bottom: 12px; }
+      #drag-handle, #snap-buttons { display: none !important; }
+      #grid-panel { min-height: 760px; }
+      .hdr-select { max-width: none; }
+    }
+    @media print {
+      body { height: auto; overflow: visible; background: #fff; }
+      header, #syncbar, #kpis, #main-container, #detail-drawer { display: none !important; }
+      #print-summary { display: block !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body class="flex flex-col">
 
-  <header class="wv-navy-header px-6 py-3 flex flex-wrap items-center justify-between gap-4 z-20 relative shadow-md">
+  <header class="wv-navy-header px-6 py-3 flex flex-wrap items-center justify-between gap-3 z-20 relative shadow-md">
     <div class="flex items-center space-x-3.5">
       <div class="bg-[#EAAA00] p-2.5 rounded-xl text-[#002855] font-black text-xl shadow-inner tracking-wider">WV</div>
       <div>
@@ -72,77 +124,59 @@
       </div>
     </div>
 
-    <div class="flex-1 max-w-md relative">
-      <input type="text" id="global-search" oninput="onSearchInput()" 
-             placeholder="Search Project Name, Number, Program #, PM, County..." 
+    <div class="flex-1 min-w-[220px] max-w-md relative">
+      <input type="text" id="global-search"
+             placeholder="Search Project Name, Number, Program #, PM, County..."
              class="w-full bg-[#001d3d] border border-[#EAAA00]/40 text-white px-4 py-1.5 pl-10 rounded-xl text-sm focus:outline-none focus:border-[#EAAA00] focus:ring-2 focus:ring-[#EAAA00]/20 transition-all placeholder-slate-400">
       <svg class="w-4 h-4 text-[#EAAA00] absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
     </div>
 
-    <div class="flex items-center space-x-2 text-xs font-medium">
-      <select id="filter-type" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
-        <option value="ALL">Program Types</option>
-      </select>
-
-      <select id="filter-pm" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
-        <option value="ALL">Managers</option>
-      </select>
-
-      <select id="filter-county" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
-        <option value="ALL">Counties</option>
-      </select>
-
-      <select id="filter-status" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
-        <option value="ALL">Statuses</option>
-        <option value="Active">Active Projects</option>
-        <option value="Completed">Completed Projects</option>
-      </select>
-
-      <select id="filter-fmis" onchange="applyFilters()" class="bg-[#001d3d] border border-[#EAAA00]/50 text-white px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#EAAA00] cursor-pointer">
-        <option value="ALL">FMIS Statuses</option>
-        <option value="Active">FMIS Active</option>
-        <option value="Inactive">FMIS Inactive</option>
-        <option value="N/A">FMIS N/A</option>
-      </select>
-
+    <div class="flex flex-wrap items-center gap-2 text-xs font-medium">
+      <select id="filter-type" class="hdr-select"></select>
+      <select id="filter-pm" class="hdr-select"></select>
+      <select id="filter-district" class="hdr-select"></select>
+      <select id="filter-county" class="hdr-select"></select>
+      <select id="filter-year" class="hdr-select"></select>
+      <select id="filter-status" class="hdr-select"></select>
+      <select id="filter-ms" class="hdr-select"></select>
+      <select id="filter-fmis" class="hdr-select"></select>
+      <button id="btn-clear" class="text-[#EAAA00] font-bold px-2 hover:text-white">Clear</button>
       <div class="flex items-center bg-[#001d3d] p-1 rounded-xl border border-[#EAAA00]/40">
-        <button id="btn-view-grid" onclick="switchView('grid')" class="px-3 py-1 rounded-lg font-extrabold transition-all bg-[#EAAA00] text-[#002855] shadow-sm">Grid View</button>
-        <button id="btn-view-cards" onclick="switchView('cards')" class="px-3 py-1 rounded-lg font-bold transition-all text-slate-300 hover:text-white">Executive Cards</button>
+        <button id="btn-view-grid" class="seg-btn on">Grid View</button>
+        <button id="btn-view-cards" class="seg-btn">Executive Cards</button>
       </div>
     </div>
   </header>
 
-  <section class="px-6 py-3 grid grid-cols-2 md:grid-cols-6 gap-3 text-center z-10">
+  <!-- Last-updated bar -->
+  <div id="syncbar" class="px-6 pt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs"></div>
+
+  <section class="px-6 py-3 grid grid-cols-2 md:grid-cols-6 gap-3 text-center z-10" id="kpis">
     <div class="executive-card p-3 rounded-xl border border-blue-200 bg-[#E6F0FA] relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
       <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Total Awarded</span>
       <span id="kpi-awarded" class="text-xl font-extrabold text-[#002855] tracking-tight">$0.00M</span>
     </div>
-
     <div class="executive-card p-3 rounded-xl border border-amber-200 bg-[#FFF8E6] relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#EAAA00]"></div>
       <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Total Portfolio Value</span>
       <span id="kpi-total-value" class="text-xl font-extrabold text-[#B38200] tracking-tight">$0.00M</span>
     </div>
-
     <div class="executive-card p-3 rounded-xl border border-blue-200 bg-[#E6F0FA] relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
       <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Supplemental Funding</span>
       <span id="kpi-total-supp" class="text-xl font-extrabold text-[#002855] tracking-tight">$0.00M</span>
     </div>
-
     <div class="executive-card p-3 rounded-xl border border-amber-200 bg-[#FFF8E6] relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#EAAA00]"></div>
-      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Active Master Programs</span>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Active Projects</span>
       <span id="kpi-active-count" class="text-xl font-extrabold text-[#B38200] tracking-tight">0</span>
     </div>
-
     <div class="executive-card p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-emerald-600"></div>
-      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Completed Programs</span>
+      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Completed Projects</span>
       <span id="kpi-completed-count" class="text-xl font-extrabold text-emerald-700 tracking-tight">0</span>
     </div>
-
     <div class="executive-card p-3 rounded-xl border border-slate-300 bg-white relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#002855]"></div>
       <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-0.5 mt-1">Master Programs</span>
@@ -150,23 +184,28 @@
     </div>
   </section>
 
-  <main id="main-container" class="flex-1 flex flex-row px-6 pb-6 min-h-0 relative select-none">
-    
+  <main id="main-container" class="flex-1 flex flex-row px-6 pb-6 min-h-0 relative">
+
     <div id="map-panel" class="executive-card p-3 rounded-2xl border border-slate-300 flex flex-col shrink-0" style="width: 25%; min-width: 15%; max-width: 70%;">
       <div class="flex justify-between items-center mb-2 px-1">
         <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-[#EAAA00]"></span> Geographic Mapping
         </h2>
-        <div class="flex items-center space-x-1">
+        <div class="flex items-center space-x-1" id="snap-buttons">
           <span class="text-[9px] text-slate-500 font-bold uppercase mr-0.5">Snap:</span>
-          <button onclick="setMapWidth(15)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">15%</button>
-          <button onclick="setMapWidth(35)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">35%</button>
-          <button onclick="setMapWidth(50)" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">50%</button>
+          <button data-snap="15" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">15%</button>
+          <button data-snap="35" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">35%</button>
+          <button data-snap="50" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#E6F0FA] text-[#002855] rounded border border-blue-200">50%</button>
         </div>
       </div>
-      <div class="flex-1 relative overflow-hidden rounded-xl border border-slate-200">
+      <div class="flex-1 relative overflow-hidden rounded-xl border border-slate-200 min-h-[200px]">
         <div id="map"></div>
       </div>
+      <div id="map-legend" class="flex flex-wrap gap-x-2.5 gap-y-1 mt-2 px-1 text-[10px] font-semibold text-slate-500"></div>
+      <label class="flex items-center gap-1.5 mt-1.5 px-1 text-[10px] font-semibold text-slate-500 cursor-pointer">
+        <input type="checkbox" id="show-unmatched" class="accent-[#002855]"> Show map lines with no matching project
+      </label>
+      <p id="map-caption" class="mt-1 px-1 text-[10px] text-slate-500"></p>
     </div>
 
     <div id="drag-handle" class="w-3 flex items-center justify-center cursor-col-resize group px-0.5 z-30 hover:bg-amber-100/50 rounded transition-colors mx-1 shrink-0">
@@ -174,720 +213,758 @@
     </div>
 
     <div id="grid-panel" class="flex-1 flex flex-col space-y-4 min-h-0 min-w-0">
-      
-      <div class="executive-card p-3.5 rounded-2xl border border-slate-300 h-40 flex flex-col shrink-0">
-        <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider mb-1">Stage-Gate Milestone Pipeline</h2>
+
+      <div class="executive-card p-3.5 rounded-2xl border border-slate-300 h-44 flex flex-col shrink-0">
+        <div class="flex justify-between items-center mb-1 gap-2 flex-wrap">
+          <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Stage-Gate Milestone Pipeline</h2>
+          <span class="text-[11px] text-slate-500 font-medium" id="pipeline-note"></span>
+        </div>
         <div class="flex-1 relative min-h-0 w-full">
           <canvas id="pipelineChart"></canvas>
         </div>
       </div>
 
       <div class="flex-1 executive-card p-3.5 rounded-2xl border border-slate-300 flex flex-col min-h-0">
-        <div class="flex justify-between items-center mb-2.5">
-          <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider" id="view-title">Active Program Portfolio</h2>
-          <span class="text-[11px] text-slate-500 font-medium">Click master chevron to expand extension phases</span>
-        </div>
+        <div class="flex flex-wrap gap-1.5 mb-2.5" id="view-tabs"></div>
 
-        <div id="grid-view-panel" class="flex-1 w-full h-full min-h-0">
-          <div class="w-full h-full overflow-y-auto custom-scrollbar pr-1 flex flex-col space-y-1.5">
-            <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-[#002855] rounded-xl text-[11px] font-extrabold text-[#EAAA00] uppercase tracking-wider sticky top-0 z-10 border border-[#001d3d] shadow-sm">
-              <div class="col-span-1">Program #</div>
-              <div class="col-span-2">State Project #</div>
-              <div class="col-span-3">Project Name</div>
-              <div class="col-span-1">PM</div>
-              <div class="col-span-1">County</div>
-              <div class="col-span-1">Award</div>
-              <div class="col-span-1">Consultant</div>
-              <div class="col-span-2">Progress</div>
+        <!-- PORTFOLIO -->
+        <div data-view="portfolio" class="view-pane flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-center mb-2.5 gap-2 flex-wrap">
+            <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider" id="view-title">Program Portfolio</h2>
+            <span class="text-[11px] text-slate-500 font-medium">Click master chevron to expand extension phases</span>
+          </div>
+          <div id="grid-view-panel" class="flex-1 w-full min-h-0 overflow-x-auto">
+            <div class="w-full h-full overflow-y-auto custom-scrollbar pr-1 flex flex-col space-y-1.5 min-w-[760px]">
+              <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-[#002855] rounded-xl text-[11px] font-extrabold text-[#EAAA00] uppercase tracking-wider sticky top-0 z-10 border border-[#001d3d] shadow-sm">
+                <div class="col-span-1">Program #</div>
+                <div class="col-span-2">State Project #</div>
+                <div class="col-span-3">Project Name</div>
+                <div class="col-span-1">PM</div>
+                <div class="col-span-1">County</div>
+                <div class="col-span-1">Award</div>
+                <div class="col-span-1">Consultant</div>
+                <div class="col-span-2">Progress</div>
+              </div>
+              <div id="native-table-rows" class="space-y-1.5 flex-1"></div>
             </div>
-            <div id="native-table-rows" class="space-y-1.5 flex-1"></div>
+          </div>
+          <div id="card-view-panel" class="hidden flex-1 w-full min-h-0 overflow-y-auto custom-scrollbar pr-1">
+            <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
           </div>
         </div>
 
-        <div id="card-view-panel" class="hidden flex-1 w-full h-full overflow-y-auto custom-scrollbar pr-1">
-          <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        <!-- DATA ISSUES -->
+        <div data-view="issues" class="view-pane hidden flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-start gap-3 flex-wrap mb-2">
+            <div>
+              <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Data Issues in the Google Sheet</h2>
+              <p class="text-[11px] text-slate-500 mt-0.5">Rows that are blank, unclear or conflicting. Fixing them in the sheet fixes the dashboard on the next update. Follows the Managers filter.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <select id="issue-field" class="text-xs border border-blue-200 bg-[#E6F0FA] text-[#002855] font-bold rounded-lg px-2 py-1"></select>
+              <button id="btn-issues-export" class="action-btn">Export List</button>
+            </div>
+          </div>
+          <div id="issue-summary" class="text-[11px] text-slate-600 mb-2"></div>
+          <div class="flex-1 min-h-0 overflow-auto custom-scrollbar" id="issue-table"></div>
+        </div>
+
+        <!-- MANAGERS -->
+        <div data-view="managers" class="view-pane hidden flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
+            <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Manager Workload</h2>
+            <span class="text-[11px] text-slate-500 font-medium">Click a manager to see their projects</span>
+          </div>
+          <div class="flex-1 min-h-0 overflow-auto custom-scrollbar" id="mgr-table"></div>
+          <div id="mgr-legend" class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] font-semibold text-slate-500"></div>
+        </div>
+
+        <!-- FMIS -->
+        <div data-view="fmis" class="view-pane hidden flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-start gap-3 flex-wrap mb-2">
+            <div>
+              <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider">FMIS Inactive List</h2>
+              <p class="text-[11px] text-slate-500 mt-0.5">Projects whose state project number is on the FMIS inactive review list. "Days left" counts to the FMIS project end date (PED).</p>
+            </div>
+            <label class="text-[11px] font-semibold text-slate-600 flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="fmis-soon" class="accent-[#002855]"> Only end dates within 90 days or past
+            </label>
+          </div>
+          <div id="fmis-summary" class="text-[11px] text-slate-600 mb-2 flex flex-wrap gap-2 items-center"></div>
+          <div class="flex-1 min-h-0 overflow-auto custom-scrollbar" id="fmis-table"></div>
+        </div>
+
+        <!-- TRENDS -->
+        <div data-view="trends" class="view-pane hidden flex-1 flex flex-col min-h-0 overflow-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-1 flex-wrap gap-2">
+            <h2 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Money Awarded by Award Year</h2>
+            <span class="text-[11px] text-slate-500 font-medium" id="trend-note"></span>
+          </div>
+          <div class="relative h-56 shrink-0"><canvas id="trendChart"></canvas></div>
+          <p class="text-[10px] text-slate-500 mt-1 mb-2">Award plus supplementals for projects first awarded that year, split by whether the project is now complete. Projects with more than one award year are counted in the earliest one.</p>
+          <div id="trend-table"></div>
         </div>
       </div>
     </div>
-
-    <aside id="detail-drawer" class="absolute top-0 right-0 h-full w-full max-w-lg bg-white border-l-2 border-[#002855] shadow-2xl z-50 transform translate-x-full p-6 overflow-y-auto flex flex-col">
-      <div class="flex justify-between items-center pb-4 border-b border-slate-200">
-        <h3 class="text-base font-extrabold text-[#002855]" id="drawer-title">Project Details</h3>
-        <button onclick="closeDrawer()" class="text-slate-400 hover:text-[#002855] p-1 rounded-lg hover:bg-slate-100 transition-all">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-
-      <div class="flex-1 py-4 space-y-5 text-sm" id="drawer-content"></div>
-    </aside>
   </main>
 
+  <aside id="detail-drawer" class="fixed top-0 right-0 h-full w-full max-w-lg bg-white border-l-2 border-[#002855] shadow-2xl z-[1100] transform translate-x-full p-6 overflow-y-auto flex flex-col">
+    <div class="flex justify-between items-start pb-4 border-b border-slate-200 gap-3">
+      <div>
+        <h3 class="text-base font-extrabold text-[#002855]" id="drawer-title">Project Details</h3>
+        <div class="text-[11px] text-slate-500 mt-0.5" id="drawer-sub"></div>
+      </div>
+      <button id="drawer-close" aria-label="Close" class="text-slate-400 hover:text-[#002855] p-1 rounded-lg hover:bg-slate-100 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="flex-1 py-4 space-y-5 text-sm" id="drawer-content"></div>
+  </aside>
+
+  <!-- One-page summary, shown only when printing -->
+  <section id="print-summary" class="p-6 text-sm"></section>
+  <div class="toast" id="toast" role="status"></div>
+
   <script>
-    let map, pipelineChart;
-    let masterProjectData = [];
-    let allProgramGroups = [];
-    let currentFilteredGroups = [];
-    let expandedPrograms = new Set();
-    let kmlFeatureMap = {};
-    let currentViewMode = 'grid';
-    let selectedProjectNum = null;
-    let currentKpiValues = { awarded: 0, totalValue: 0, totalSupp: 0, active: 0, completed: 0, total: 0 };
+  (function () {
+    "use strict";
+    const DATA = (typeof DASHBOARD_DATA !== "undefined") ? DASHBOARD_DATA : null;
+    const SYNC = (typeof window.SYNC_STATUS !== "undefined") ? window.SYNC_STATUS : null;
+    if (!DATA || !Array.isArray(DATA.projects)) {
+      document.getElementById("main-container").innerHTML =
+        '<div class="executive-card rounded-2xl p-6 w-full"><h2 class="font-bold text-[#002855]">The data file could not be loaded</h2>' +
+        '<p class="text-sm text-slate-600 mt-1">dashboard_data.js is missing or was built by an older build script. Run auto_sync.py and reload.</p></div>';
+      return;
+    }
 
-    document.addEventListener("DOMContentLoaded", function() {
-      initMap();
-      initChart();
-      initSplitter();
-      loadDashboardData();
+    // ------------------------------------------------------------ setup
+    const MS = DATA.milestones;
+    const MS_LABEL = Object.fromEntries(MS.map(m => [m.key, m.label]));
+    // Old dashboard palette: navy, blues, then gold
+    const MS_COLORS = { none: "#94a3b8", design_ntp: "#002855", plans_30: "#1d4ed8", plans_90: "#0284c7", nepa: "#B38200", pse: "#EAAA00" };
+    const COMPLETE_COLOR = "#059669";
+    const ALL = DATA.projects.filter(p => !p.duplicate_of);   // repeat rows only appear on Data Issues
+    const BY_ID = Object.fromEntries(DATA.projects.map(p => [p.id, p]));
+    const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+    const $ = s => document.querySelector(s);
+    const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const formatCurrency = v => "$" + (parseFloat(v) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money0 = v => v == null ? "" : "$" + Math.round(v).toLocaleString("en-US");
+    const millions = v => "$" + (v / 1e6).toFixed(2) + "M";
+    const plural = (n, w) => n.toLocaleString("en-US") + " " + w + (n === 1 ? "" : "s");
+    const msName = k => k ? MS_LABEL[k] : "No milestone yet";
+    const uniq = a => [...new Set(a.filter(v => v !== "" && v != null))];
+    const effPct = p => p.pct_complete != null ? p.pct_complete : (p.is_complete ? 100 : null);
+    function parseUSDate(s) {
+      const m = String(s || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if (!m) return null; let y = +m[3]; if (y < 100) y += 2000;
+      return new Date(y, +m[1] - 1, +m[2]);
+    }
+    const fmtDate = iso => iso ? new Date(iso + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+    function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2400); }
 
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeDrawer();
-      });
-    });
+    // ------------------------------------------------------------ state
+    const F = { q: "", type: "", mgr: "", dist: "", county: "", year: "", status: "", ms: "", fmis: "" };
+    const VIEWS = [
+      { key: "portfolio", label: "Portfolio" },
+      { key: "issues", label: "Data Issues", count: DATA.issues.length },
+      { key: "managers", label: "Managers" },
+      { key: "fmis", label: "FMIS" },
+      { key: "trends", label: "Trends" },
+    ];
+    let view = "portfolio", mode = "grid";
+    const expandedPrograms = new Set();
+    let selectedId = null, currentGroups = [];
+    let pipelineChart = null, trendChart = null, map = null, mapLayer = null;
+    const featureLayers = {};
 
-    function initSplitter() {
-      const dragHandle = document.getElementById('drag-handle');
-      const mapPanel = document.getElementById('map-panel');
-      const mainContainer = document.getElementById('main-container');
-      let isDragging = false;
+    // ---------------------------------------------------------- filters
+    const FILTERS = [
+      ["filter-type", "type"], ["filter-pm", "mgr"], ["filter-district", "dist"], ["filter-county", "county"],
+      ["filter-year", "year"], ["filter-status", "status"], ["filter-ms", "ms"], ["filter-fmis", "fmis"],
+    ];
+    function fill(id, list, allLabel) {
+      document.getElementById(id).innerHTML = `<option value="">${esc(allLabel)}</option>` + list.map(o => `<option value="${esc(o.v)}">${esc(o.t)}</option>`).join("");
+    }
+    function setupFilters() {
+      fill("filter-type", uniq(ALL.map(p => p.project_type)).sort().map(v => ({ v, t: v })), "Program Types");
+      fill("filter-pm", uniq(ALL.map(p => p.manager)).sort().map(v => ({ v, t: v })), "Managers");
+      const d = uniq(ALL.map(p => p.district)).sort((a, b) => parseInt(a.replace(/\D/g, "")) - parseInt(b.replace(/\D/g, "")));
+      fill("filter-district", [...d.map(v => ({ v, t: v })), { v: "__none", t: "District not entered" }], "Districts");
+      fill("filter-county", uniq(ALL.map(p => p.county)).sort().map(v => ({ v, t: v })), "Counties");
+      const y = uniq(ALL.flatMap(p => p.award_years)).sort((a, b) => b - a);
+      fill("filter-year", [...y.map(v => ({ v: String(v), t: String(v) })), { v: "__none", t: "Year not entered" }], "Award Years");
+      fill("filter-status", [{ v: "active", t: "Active Projects" }, { v: "complete", t: "Completed Projects" }], "Statuses");
+      fill("filter-ms", [{ v: "__none", t: "No milestone yet" }, ...MS.map(m => ({ v: m.key, t: m.label }))], "Milestones");
+      fill("filter-fmis", [{ v: "Inactive", t: "FMIS Inactive" }, { v: "On list, active", t: "FMIS On list, active" }, { v: "Not on inactive list", t: "Not on FMIS inactive list" }], "FMIS Statuses");
+      FILTERS.forEach(([id, key]) => document.getElementById(id).addEventListener("change", e => { F[key] = e.target.value; update(); }));
+      $("#global-search").addEventListener("input", e => { F.q = e.target.value.trim(); update(); });
+      $("#btn-clear").addEventListener("click", () => { Object.keys(F).forEach(k => F[k] = ""); syncInputs(); update(); });
+    }
+    function syncInputs() {
+      FILTERS.forEach(([id, key]) => { document.getElementById(id).value = F[key]; });
+      $("#global-search").value = F.q;
+    }
+    function matches(p, skip) {
+      if (F.q) {
+        const hay = [p.name, p.program_number, p.state_number, p.federal_number, p.county, p.consultant, p.manager, p.status_update].join(" ").toLowerCase();
+        if (!F.q.toLowerCase().split(/\s+/).every(w => hay.includes(w))) return false;
+      }
+      if (F.type && p.project_type !== F.type) return false;
+      if (F.mgr && p.manager !== F.mgr) return false;
+      if (F.dist && (F.dist === "__none" ? p.district : p.district !== F.dist)) return false;
+      if (F.county && p.county !== F.county) return false;
+      if (F.year && (F.year === "__none" ? p.award_years.length : !p.award_years.includes(+F.year))) return false;
+      if (F.status === "active" && p.is_complete) return false;
+      if (F.status === "complete" && !p.is_complete) return false;
+      if (skip !== "ms" && F.ms && (p.is_complete || (F.ms === "__none" ? p.latest_milestone : p.latest_milestone !== F.ms))) return false;
+      if (F.fmis && p.fmis_status !== F.fmis) return false;
+      return true;
+    }
+    function describeFilters() {
+      const out = [];
+      if (F.q) out.push(`search "${F.q}"`);
+      FILTERS.forEach(([id, key]) => { if (F[key]) out.push(document.getElementById(id).selectedOptions[0].text); });
+      return out;
+    }
 
-      dragHandle.addEventListener('mousedown', function() {
-        isDragging = true;
-        document.body.style.cursor = 'col-resize';
-      });
+    // --------------------------------------------------- shareable links
+    function writeHash() {
+      const sp = new URLSearchParams();
+      if (view !== "portfolio") sp.set("view", view);
+      if (mode !== "grid") sp.set("mode", mode);
+      Object.entries(F).forEach(([k, v]) => { if (v) sp.set(k, v); });
+      const h = sp.toString();
+      history.replaceState(null, "", h ? "#" + h : location.pathname + location.search);
+    }
+    function readHash() {
+      const sp = new URLSearchParams(location.hash.slice(1));
+      Object.keys(F).forEach(k => { F[k] = sp.get(k) || ""; });
+      if (VIEWS.some(v => v.key === sp.get("view"))) view = sp.get("view");
+      if (sp.get("mode") === "cards") mode = "cards";
+    }
 
-      document.addEventListener('mousemove', function(e) {
-        if (!isDragging) return;
-        const rect = mainContainer.getBoundingClientRect();
-        let pct = ((e.clientX - rect.left) / rect.width) * 100;
-        if (pct < 12) pct = 12;
-        if (pct > 65) pct = 65;
-
-        mapPanel.style.width = pct + '%';
-        if (map) map.invalidateSize();
-      });
-
-      document.addEventListener('mouseup', function() {
-        if (isDragging) {
-          isDragging = false;
-          document.body.style.cursor = '';
-          if (map) map.invalidateSize();
-        }
+    // ---------------------------------------------------- last-updated bar
+    function renderSync() {
+      const syncedAt = SYNC && SYNC.synced_at ? new Date(SYNC.synced_at) : (DATA.built_at ? new Date(DATA.built_at) : null);
+      const when = syncedAt ? syncedAt.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "unknown";
+      const hours = syncedAt ? (Date.now() - syncedAt) / 36e5 : null;
+      const tabs = SYNC ? SYNC.tabs : null;
+      const failed = tabs ? tabs.filter(t => !t.ok) : [];
+      let led = "bg-emerald-500", msg, tone = "text-slate-600";
+      if (SYNC && !SYNC.build_ok) { led = "bg-red-600"; tone = "text-red-700 font-bold"; msg = "The last update failed while building the data. Numbers are from an earlier update."; }
+      else if (failed.length) { led = "bg-red-600"; tone = "text-red-700 font-bold"; msg = `${plural(failed.length, "sheet")} did not download (${failed.map(t => esc(t.tab)).join(", ")}). Showing the last good copy.`; }
+      else if (hours != null && hours > 12) { led = "bg-[#EAAA00]"; tone = "text-[#B38200] font-bold"; msg = "Data has not updated in over 12 hours (normally every 6 hours)."; }
+      else msg = tabs ? `All ${tabs.length} sheets downloaded` : "Sheet download details not available";
+      const details = tabs ? `<details class="relative"><summary class="cursor-pointer text-[#002855] font-bold">Details</summary>
+        <div class="absolute z-[1200] mt-1 executive-card rounded-xl p-2 w-80"><table class="xtable"><thead><tr><th>Sheet</th><th class="text-right">Rows</th><th>Result</th></tr></thead><tbody>
+        ${tabs.map(t => `<tr><td>${esc(t.tab)}</td><td class="num">${t.rows ?? ""}</td><td>${t.ok ? '<span class="pill pill-green">OK</span>' : '<span class="pill pill-red">Failed</span> ' + esc(t.note)}</td></tr>`).join("")}
+        </tbody></table></div></details>` : "";
+      $("#syncbar").innerHTML = `
+        <span class="flex items-center gap-1.5 font-bold text-[#002855]"><span class="led-dot ${led}"></span>Data last updated ${esc(when)}</span>
+        <span class="${tone}">${msg} · ${plural(ALL.length, "project")}</span>${details}
+        <span class="flex-1"></span>
+        <button class="action-btn" id="btn-link" title="Copy a link that opens this view with the same filters">Copy Link</button>
+        <button class="action-btn" id="btn-print" title="Print a one-page summary">Print Summary</button>
+        <button class="action-btn primary" id="btn-export" title="Download the filtered projects">Export to Excel</button>`;
+      $("#btn-export").addEventListener("click", exportProjects);
+      $("#btn-print").addEventListener("click", printSummary);
+      $("#btn-link").addEventListener("click", () => {
+        writeHash();
+        (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(
+          () => toast("Link copied. It opens this view with the same filters."), () => window.prompt("Copy this link:", location.href));
       });
     }
 
-    function setMapWidth(pct) {
-      const mapPanel = document.getElementById('map-panel');
-      if (!mapPanel) return;
-      mapPanel.style.transition = 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-      mapPanel.style.width = pct + '%';
-      setTimeout(() => {
-        if (map) map.invalidateSize();
-        mapPanel.style.transition = '';
-      }, 300);
-    }
-
-    function initMap() {
-      const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
+    // -------------------------------------------------------------- KPIs
+    function groupPrograms(rows) {
+      const m = new Map();
+      rows.forEach(p => {
+        const k = p.program_number ? "P:" + p.program_number.replace(/\s/g, "") : "S:" + (p.state_number || p.id);
+        if (!m.has(k)) m.set(k, { key: k, programNum: p.program_number || "—", items: [] });
+        m.get(k).items.push(p);
       });
-
-      map = L.map('map', {
-        center: [38.5976, -80.4549],
-        zoom: 7,
-        layers: [streetLayer]
+      return [...m.values()].map(g => {
+        const pcts = g.items.map(effPct).filter(v => v != null);
+        g.avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : null;
+        g.complete = g.items.every(p => p.is_complete);
+        g.award = g.items.reduce((a, p) => a + (p.award || 0), 0);
+        g.total = g.items.reduce((a, p) => a + p.total, 0);
+        g.lead = g.items[0];
+        return g;
       });
     }
+    function animateCounter(id, end, isMoney) {
+      const el = document.getElementById(id);
+      const start = parseFloat(el.dataset.v || "0");
+      el.dataset.v = end;
+      const show = v => { el.textContent = isMoney ? millions(v) : Math.round(v).toLocaleString("en-US"); };
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { show(end); return; }
+      const t0 = performance.now(), dur = 450;
+      const step = now => { const k = Math.min(1, (now - t0) / dur); show(start + (end - start) * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }
+    function updateKPIs(rows, groups) {
+      const sum = k => rows.reduce((a, p) => a + (p[k] || 0), 0);
+      animateCounter("kpi-awarded", sum("award"), true);
+      animateCounter("kpi-total-value", sum("total"), true);
+      animateCounter("kpi-total-supp", sum("supplementals"), true);
+      animateCounter("kpi-active-count", rows.filter(p => !p.is_complete).length, false);
+      animateCounter("kpi-completed-count", rows.filter(p => p.is_complete).length, false);
+      animateCounter("kpi-total-count", groups.length, false);
+    }
 
+    // ---------------------------------------------------------- pipeline
+    const PIPE_KEYS = ["__none", ...MS.map(m => m.key)];
     function initChart() {
-      const ctx = document.getElementById('pipelineChart').getContext('2d');
-      pipelineChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Design NTP', 'PFR Review', 'FFR Review', 'PS&E Clearance', 'Construction NTP'],
-          datasets: [{
-            label: 'Projects in Phase',
-            data: [0, 0, 0, 0, 0],
-            backgroundColor: ['#002855', '#1d4ed8', '#0284c7', '#B38200', '#EAAA00'],
-            borderRadius: 6
-          }]
-        },
+      if (typeof Chart === "undefined") { $("#pipelineChart").replaceWith(Object.assign(document.createElement("div"), { className: "text-xs text-slate-400 p-4", textContent: "The chart could not load (no connection to the chart library)." })); return; }
+      pipelineChart = new Chart($("#pipelineChart").getContext("2d"), {
+        type: "bar",
+        data: { labels: ["No Milestone Yet", ...MS.map(m => m.label)], datasets: [{ label: "Active projects", data: PIPE_KEYS.map(() => 0),
+          backgroundColor: PIPE_KEYS.map(k => MS_COLORS[k === "__none" ? "none" : k]), borderRadius: 6 }] },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw} active project${c.raw === 1 ? "" : "s"}` } } },
           scales: {
-            x: { ticks: { color: '#002855', font: { family: 'Plus Jakarta Sans', size: 10, weight: '700' } }, grid: { display: false } },
-            y: { ticks: { color: '#64748b', precision: 0 }, grid: { color: '#e2e8f0' }, beginAtZero: true }
-          }
+            x: { ticks: { color: "#002855", font: { family: "Plus Jakarta Sans", size: 10, weight: "700" } }, grid: { display: false } },
+            y: { ticks: { color: "#64748b", precision: 0 }, grid: { color: "#e2e8f0" }, beginAtZero: true }
+          },
+          onClick: (e, els) => {
+            if (!els.length) return;
+            const k = PIPE_KEYS[els[0].index];
+            if (F.ms === k) F.ms = ""; else { F.ms = k; F.status = "active"; }
+            syncInputs(); update();
+          },
+          onHover: (e, els) => { e.native.target.style.cursor = els.length ? "pointer" : "default"; }
         }
       });
     }
-
-    function groupProjectsByProgram(flatProjects) {
-      const groupsMap = {};
-      flatProjects.forEach(p => {
-        let prog = (p.PROGRAM_NUM_CLEAN && p.PROGRAM_NUM_CLEAN !== 'nan' && p.PROGRAM_NUM_CLEAN !== 'null') 
-                   ? p.PROGRAM_NUM_CLEAN.toString().trim() 
-                   : '';
-        if (prog.endsWith('.0')) prog = prog.slice(0, -2);
-        
-        const groupKey = prog || p.CLEAN_NUM || `NO-PROG-${p.SOURCE_PM}`;
-
-        const itemCounty = (p.COUNTY && p.COUNTY !== 'NaN' && p.COUNTY !== 'null') ? p.COUNTY.toString().trim() : 'N/A';
-        const itemConsultant = (p.CONSULTANT && p.CONSULTANT !== 'NaN' && p.CONSULTANT !== 'null') ? p.CONSULTANT.toString().trim() : '—';
-        const itemFmis = (p.FMIS_STATUS && p.FMIS_STATUS !== 'NaN' && p.FMIS_STATUS !== 'null') ? p.FMIS_STATUS.toString().trim() : 'N/A';
-
-        if (!groupsMap[groupKey]) {
-          groupsMap[groupKey] = {
-            programNum: prog || '—',
-            groupKey: groupKey,
-            masterName: p['PROJECT NAME'] || 'Untitled Project',
-            pm: p.SOURCE_PM || 'Unassigned',
-            county: itemCounty,
-            consultant: itemConsultant,
-            pms: new Set(),
-            types: new Set(),
-            counties: new Set(),
-            fmisStatuses: new Set(),
-            totalAward: 0,
-            totalValue: 0,
-            totalSupplemental: 0,
-            avgCompletion: 0,
-            isCompleted: true,
-            items: []
-          };
-        } else {
-          if (groupsMap[groupKey].county === 'N/A' && itemCounty !== 'N/A') {
-            groupsMap[groupKey].county = itemCounty;
-          }
-          if (groupsMap[groupKey].consultant === '—' && itemConsultant !== '—') {
-            groupsMap[groupKey].consultant = itemConsultant;
-          }
-        }
-
-        groupsMap[groupKey].items.push(p);
-        if (p.SOURCE_PM) groupsMap[groupKey].pms.add(p.SOURCE_PM);
-        if (itemFmis) groupsMap[groupKey].fmisStatuses.add(itemFmis);
-        
-        const pType = (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase();
-        if (pType) groupsMap[groupKey].types.add(pType);
-
-        if (itemCounty && itemCounty !== 'N/A') groupsMap[groupKey].counties.add(itemCounty);
-
-        groupsMap[groupKey].totalAward += (p.AWARD_CLEAN || 0);
-        groupsMap[groupKey].totalSupplemental += (p.SUPPLEMENTAL_CLEAN || 0);
-        groupsMap[groupKey].totalValue += (p.TOTAL_VALUE_CLEAN || 0);
-      });
-
-      const groupList = Object.values(groupsMap);
-      groupList.forEach(g => {
-        let sumPct = 0;
-        let allItemsComplete = true;
-
-        g.items.forEach(item => {
-          const rawPct = (item['PROJECT COMPLETION PERCENTAGE'] || '0').toString().replace(/%/g, '').trim();
-          const itemPct = (parseFloat(rawPct) || 0);
-          sumPct += itemPct;
-
-          if (!item.IS_COMPLETED && itemPct < 100) {
-            allItemsComplete = false;
-          }
-        });
-
-        g.avgCompletion = Math.round(sumPct / g.items.length);
-        g.isCompleted = allItemsComplete || (g.avgCompletion === 100);
-      });
-
-      return groupList;
-    }
-
-    function toggleProgramExpand(groupKey, event) {
-      if (event) event.stopPropagation();
-      if (expandedPrograms.has(groupKey)) {
-        expandedPrograms.delete(groupKey);
-      } else {
-        expandedPrograms.add(groupKey);
-      }
-      renderNativeTable(currentFilteredGroups);
-    }
-
-    function renderNativeTable(groups) {
-      const rowsContainer = document.getElementById('native-table-rows');
-      if (!rowsContainer) return;
-
-      if (!groups || groups.length === 0) {
-        rowsContainer.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs font-semibold">No matching program records found.</div>`;
-        return;
-      }
-
-      let html = '';
-
-      groups.forEach((group, idx) => {
-        const isExpanded = expandedPrograms.has(group.groupKey);
-        const hasExtensions = group.items.length > 1;
-
-        let pmStyle = "bg-[#FFF8E6] text-[#B38200] border-amber-300";
-        if (idx % 2 === 0) pmStyle = "bg-[#E6F0FA] text-[#002855] border-blue-200";
-
-        let ledClass = 'led-gold', barColor = 'bg-[#EAAA00]';
-        if (group.avgCompletion === 100) { ledClass = 'led-navy'; barColor = 'bg-[#002855]'; }
-
-        const chevron = hasExtensions ? `
-          <button onclick="toggleProgramExpand('${group.groupKey}', event)" class="mr-1 text-[#002855] hover:text-[#EAAA00] font-black focus:outline-none transition-transform ${isExpanded ? 'rotate-90' : ''}">
-            ▶
-          </button>
-        ` : `<span class="w-3 inline-block"></span>`;
-
-        const extensionTag = hasExtensions ? `
-          <span class="ml-1 px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-[#B38200] rounded-full border border-amber-300 cursor-pointer" onclick="toggleProgramExpand('${group.groupKey}', event)">
-            ${group.items.length} Phases
-          </span>
-        ` : '';
-
-        const masterRowClick = hasExtensions ? `onclick="toggleProgramExpand('${group.groupKey}', event)"` : `onclick="onNativeRowClick('${group.items[0].CLEAN_NUM}')"`;
-
-        html += `
-          <div ${masterRowClick} class="grid grid-cols-12 gap-2 px-4 py-2 rounded-xl border items-center text-xs text-slate-800 bg-white hover:bg-slate-50 border-slate-200 cursor-pointer shadow-sm">
-            <div class="col-span-1 font-mono text-[#002855] font-bold flex items-center truncate">
-              ${chevron} <span class="truncate">${group.programNum}</span>
-            </div>
-            <div class="col-span-2 flex items-center">
-              <span class="font-mono text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200 text-[11px] truncate">
-                ${hasExtensions ? 'MASTER-GROUP' : group.items[0].CLEAN_NUM}
-              </span>
-              ${extensionTag}
-            </div>
-            <div class="col-span-3 font-bold text-slate-900 truncate">${group.masterName}</div>
-            <div class="col-span-1"><span class="px-2 py-0.5 border rounded-full text-[10px] font-bold ${pmStyle}">${group.pm}</span></div>
-            <div class="col-span-1 text-slate-600 font-semibold truncate">${group.county}</div>
-            <div class="col-span-1 font-mono text-[#002855] font-bold">${formatCurrency(group.totalAward)}</div>
-            <div class="col-span-1 text-slate-600 font-medium truncate">${group.consultant}</div>
-            <div class="col-span-2 flex items-center space-x-2">
-              <span class="led-dot ${ledClass}"></span>
-              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
-                <div class="${barColor} h-2 rounded-full" style="width: ${group.avgCompletion}%"></div>
-              </div>
-              <span class="font-mono font-bold text-[11px] text-[#002855] w-8 text-right">${group.avgCompletion}%</span>
-            </div>
-          </div>
-        `;
-
-        if (hasExtensions && isExpanded) {
-          group.items.forEach(child => {
-            const isSelected = selectedProjectNum === child.CLEAN_NUM;
-            const childBg = isSelected ? 'bg-amber-50 border-[#EAAA00] ring-2 ring-[#EAAA00]/30' : 'bg-slate-50/90 hover:bg-amber-50/50 border-slate-200';
-            const childPct = Math.min(100, Math.max(0, parseFloat((child['PROJECT COMPLETION PERCENTAGE'] || '0').replace(/%/g, '')) || 0));
-
-            html += `
-              <div onclick="onNativeRowClick('${child.CLEAN_NUM}')" class="grid grid-cols-12 gap-2 px-4 py-1.5 ml-6 rounded-lg border items-center text-[11px] text-slate-700 transition-all cursor-pointer ${childBg}">
-                <div class="col-span-1 font-mono text-slate-400 text-[10px] pl-2 border-l-2 border-amber-400">↳ Phase</div>
-                <div class="col-span-2"><span class="font-mono text-slate-800 font-bold bg-white px-2 py-0.5 rounded border border-slate-200 text-[10px]">${child.CLEAN_NUM}</span></div>
-                <div class="col-span-3 font-semibold text-slate-800 truncate">${child['PROJECT NAME'] || group.masterName}</div>
-                <div class="col-span-1 text-slate-500 font-bold">${child.SOURCE_PM}</div>
-                <div class="col-span-1 text-slate-500 truncate">${child.COUNTY || 'N/A'}</div>
-                <div class="col-span-1 font-mono text-slate-900 font-bold">${formatCurrency(child.AWARD_CLEAN)}</div>
-                <div class="col-span-1 text-slate-500 truncate">${child.CONSULTANT || '—'}</div>
-                <div class="col-span-2 flex items-center space-x-2">
-                  <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-[#B38200] h-1.5 rounded-full" style="width: ${childPct}%"></div>
-                  </div>
-                  <span class="font-mono font-bold text-[10px] text-slate-700 w-8 text-right">${childPct}%</span>
-                </div>
-              </div>
-            `;
-          });
-        }
-      });
-
-      rowsContainer.innerHTML = html;
-    }
-
-    function onNativeRowClick(cleanNum) {
-      if (selectedProjectNum === cleanNum) {
-        closeDrawer();
-        return;
-      }
-      selectedProjectNum = cleanNum;
-      const project = masterProjectData.find(p => p.CLEAN_NUM === cleanNum);
-      if (project) {
-        onProjectRowClick(project);
-        renderNativeTable(currentFilteredGroups);
-      }
-    }
-
-    function switchView(mode) {
-      currentViewMode = mode;
-      const btnGrid = document.getElementById('btn-view-grid');
-      const btnCards = document.getElementById('btn-view-cards');
-      const panelGrid = document.getElementById('grid-view-panel');
-      const panelCards = document.getElementById('card-view-panel');
-
-      if (mode === 'grid') {
-        btnGrid.className = "px-3 py-1 rounded-lg font-extrabold bg-[#EAAA00] text-[#002855] shadow-sm";
-        btnCards.className = "px-3 py-1 rounded-lg font-bold text-slate-300 hover:text-white";
-        panelGrid.classList.remove('hidden');
-        panelCards.classList.add('hidden');
-        renderNativeTable(currentFilteredGroups);
-      } else {
-        btnCards.className = "px-3 py-1 rounded-lg font-extrabold bg-[#EAAA00] text-[#002855] shadow-sm";
-        btnGrid.className = "px-3 py-1 rounded-lg font-bold text-slate-300 hover:text-white";
-        panelCards.classList.remove('hidden');
-        panelGrid.classList.add('hidden');
-        renderCardView(currentFilteredGroups);
-      }
-    }
-
-    function renderCardView(groups) {
-      const container = document.getElementById('card-view-container');
-      if (!container) return;
-
-      if (!groups || groups.length === 0) {
-        container.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400">No matching projects.</div>`;
-        return;
-      }
-
-      let html = '';
-
-      groups.forEach(g => {
-        html += `
-          <div onclick="onProjectCardClick('${g.items[0].CLEAN_NUM}')" class="executive-card p-3.5 rounded-xl border border-slate-200 hover:border-[#EAAA00] cursor-pointer flex flex-col justify-between space-y-3">
-            <div>
-              <div class="flex justify-between items-start mb-1.5 gap-2">
-                <span class="font-mono text-xs text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200">Prog #: ${g.programNum}</span>
-                <span class="px-2 py-0.5 text-[10px] rounded-full bg-[#FFF8E6] border border-amber-300 text-[#B38200] font-bold">${g.pm}</span>
-              </div>
-              <h3 class="font-bold text-[#002855] text-sm leading-tight line-clamp-1 mb-1">${g.masterName}</h3>
-              <div class="text-[11px] text-slate-500">Phases: <strong class="text-slate-800 font-mono">${g.items.length}</strong> | County: <strong class="text-slate-800">${g.county}</strong></div>
-            </div>
-
-            <div class="space-y-1.5">
-              <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-500 font-medium">Average Progress</span>
-                <span class="font-mono text-[#002855] font-bold">${g.avgCompletion}%</span>
-              </div>
-              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
-                <div class="bg-[#EAAA00] h-2 rounded-full" style="width: ${g.avgCompletion}%"></div>
-              </div>
-            </div>
-
-            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-              <div>
-                <span class="text-[10px] text-slate-400 block uppercase">Total Award</span>
-                <span class="font-mono text-[#002855] font-bold">${formatCurrency(g.totalAward)}</span>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] text-slate-400 block uppercase">Total Value</span>
-                <span class="font-mono text-[#B38200] font-extrabold">${formatCurrency(g.totalValue)}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    }
-
-    function onProjectCardClick(cleanNum) {
-      const proj = masterProjectData.find(p => p.CLEAN_NUM === cleanNum);
-      if (proj) {
-        selectedProjectNum = cleanNum;
-        onProjectRowClick(proj);
-      }
-    }
-
-    function animateCounter(elementId, startVal, endVal, isCurrency = false, duration = 750) {
-      const obj = document.getElementById(elementId);
-      if (!obj) return;
-
-      let startTime = null;
-      function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const progress = Math.min((timestamp - startTime) / duration, 1);
-        const easeProgress = 1 - Math.pow(1 - progress, 3);
-        const currentVal = startVal + (endVal - startVal) * easeProgress;
-
-        if (isCurrency) {
-          obj.innerText = `$${(currentVal / 1e6).toFixed(2)}M`;
-        } else {
-          obj.innerText = Math.round(currentVal).toLocaleString();
-        }
-
-        if (progress < 1) window.requestAnimationFrame(step);
-      }
-      window.requestAnimationFrame(step);
-    }
-
-    function updatePipelineChart(groups) {
+    function updatePipeline() {
+      const base = ALL.filter(p => matches(p, "ms") && !p.is_complete);
+      $("#pipeline-note").textContent = `${plural(base.length, "active project")} by furthest milestone with a date or Yes · click a bar to filter`;
       if (!pipelineChart) return;
-      const counts = [0, 0, 0, 0, 0];
-      
-      groups.forEach(g => {
-        const pct = g.avgCompletion || 0;
-        if (pct <= 20) counts[0]++;
-        else if (pct <= 50) counts[1]++;
-        else if (pct <= 75) counts[2]++;
-        else if (pct < 100) counts[3]++;
-        else counts[4]++;
-      });
-
-      pipelineChart.data.datasets[0].data = counts;
+      const ds = pipelineChart.data.datasets[0];
+      ds.data = PIPE_KEYS.map(k => base.filter(p => (p.latest_milestone || "__none") === k).length);
+      ds.backgroundColor = PIPE_KEYS.map(k => (!F.ms || F.ms === k) ? MS_COLORS[k === "__none" ? "none" : k] : "#e2e8f0");
       pipelineChart.update();
     }
 
-    function loadDashboardData() {
-      if (typeof DASHBOARD_DATA === 'undefined') {
-        console.error("DASHBOARD_DATA missing. Run auto_sync.py first.");
-        return;
-      }
-
-      masterProjectData = DASHBOARD_DATA.projects || [];
-      allProgramGroups = groupProjectsByProgram(masterProjectData);
-      currentFilteredGroups = allProgramGroups;
-
-      renderNativeTable(allProgramGroups);
-
-      const rawPms = masterProjectData.map(p => (p.SOURCE_PM || '').toString().trim());
-      const pms = [...new Set(rawPms)].filter(m => m && m !== 'NaN' && m !== 'null' && m !== 'Unassigned').sort();
-      const pmSelect = document.getElementById('filter-pm');
-      if (pmSelect) {
-        pmSelect.innerHTML = '<option value="ALL">Managers</option>';
-        pms.forEach(m => pmSelect.innerHTML += `<option value="${m}">${m}</option>`);
-      }
-
-      const rawTypes = masterProjectData.map(p => (p.PROJECT_TYPE_CLEAN || p['PROJECT TYPE'] || '').toString().trim().toUpperCase());
-      const types = [...new Set(rawTypes)].filter(t => t && t !== 'NAN' && t !== 'NULL' && t !== 'UNASSIGNED').sort();
-      const typeSelect = document.getElementById('filter-type');
-      if (typeSelect) {
-        typeSelect.innerHTML = '<option value="ALL">Program Types</option>';
-        types.forEach(t => typeSelect.innerHTML += `<option value="${t}">${t}</option>`);
-      }
-
-      const rawCounties = masterProjectData.map(p => (p.COUNTY || '').toString().trim());
-      const counties = [...new Set(rawCounties)].filter(c => c && c !== 'NaN' && c !== 'null' && c !== 'N/A').sort();
-      const countySelect = document.getElementById('filter-county');
-      if (countySelect) {
-        countySelect.innerHTML = '<option value="ALL">Counties</option>';
-        counties.forEach(c => countySelect.innerHTML += `<option value="${c}">${c}</option>`);
-      }
-
-      if (DASHBOARD_DATA.geojson && DASHBOARD_DATA.geojson.features.length > 0) {
-        const geoLayer = L.geoJSON(DASHBOARD_DATA.geojson, {
-          style: { color: '#002855', weight: 3, opacity: 0.85, fillColor: '#EAAA00', fillOpacity: 0.35 },
-          pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, { radius: 7, fillColor: "#EAAA00", color: "#002855", weight: 2, opacity: 1, fillOpacity: 0.95 });
-          },
-          onEachFeature: function(feature, featureLayer) {
-            const cleanNum = feature.properties.clean_num;
-            const cleanName = feature.properties.clean_name;
-            if (cleanNum) kmlFeatureMap[cleanNum] = featureLayer;
-            if (cleanName) kmlFeatureMap[cleanName] = featureLayer;
-
-            featureLayer.on('click', function() {
-              const matchedProj = masterProjectData.find(p => {
-                const pNum = (p.CLEAN_NUM || '').toUpperCase();
-                const pName = (p['PROJECT NAME'] || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                return (cleanNum && pNum.includes(cleanNum)) || (cleanName && pName.includes(cleanName));
-              });
-
-              if (matchedProj) {
-                selectedProjectNum = matchedProj.CLEAN_NUM;
-                onProjectRowClick(matchedProj);
-                renderNativeTable(currentFilteredGroups);
-              }
-            });
-          }
-        }).addTo(map);
-
-        if (geoLayer.getBounds().isValid()) {
-          map.fitBounds(geoLayer.getBounds(), { padding: [20, 20] });
-        }
-      }
-
-      updatePipelineChart(allProgramGroups);
-      updateKPIs(allProgramGroups);
+    // --------------------------------------------------------------- map
+    function initMap() {
+      if (typeof L === "undefined") { $("#map").innerHTML = '<div class="p-4 text-xs text-slate-400">The map could not load.</div>'; return; }
+      const streetLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors", maxZoom: 19 });
+      map = L.map("map", { center: [38.5976, -80.4549], zoom: 7, layers: [streetLayer] });
+      $("#map-legend").innerHTML = [["none", "No milestone yet"], ...MS.map(m => [m.key, m.label])]
+        .map(([k, t]) => `<span class="flex items-center gap-1"><span class="inline-block w-3 h-1 rounded" style="background:${MS_COLORS[k]}"></span>${esc(t)}</span>`).join("") +
+        `<span class="flex items-center gap-1"><span class="inline-block w-3 h-1 rounded" style="background:${COMPLETE_COLOR}"></span>Complete</span>`;
+      $("#show-unmatched").addEventListener("change", () => renderMap(ALL.filter(p => matches(p))));
     }
-
-    function onSearchInput() {
-      const query = document.getElementById('global-search').value.toLowerCase();
-      
-      const searchedGroups = currentFilteredGroups.filter(g => {
-        const name = g.masterName.toLowerCase();
-        const prog = g.programNum.toLowerCase();
-        const pmsStr = Array.from(g.pms).join(' ').toLowerCase();
-        const countiesStr = Array.from(g.counties).join(' ').toLowerCase();
-
-        const childMatches = g.items.some(item => {
-          const cNum = (item['STATE PROJECT NUMBER'] || item.CLEAN_NUM || '').toLowerCase();
-          const cName = (item['PROJECT NAME'] || '').toLowerCase();
-          return cNum.includes(query) || cName.includes(query);
-        });
-
-        return name.includes(query) || prog.includes(query) || pmsStr.includes(query) || countiesStr.includes(query) || childMatches;
+    function renderMap(rows) {
+      if (!map) return;
+      map.invalidateSize();
+      const ids = new Set(rows.map(p => p.id));
+      const showUnmatched = $("#show-unmatched").checked;
+      if (mapLayer) mapLayer.remove();
+      Object.keys(featureLayers).forEach(k => delete featureLayers[k]);
+      const feats = DATA.geojson.features.filter(f => {
+        const pids = f.properties.project_ids || [];
+        return pids.length ? pids.some(id => ids.has(id)) : showUnmatched;
       });
-
-      if (currentViewMode === 'cards') renderCardView(searchedGroups);
-      else renderNativeTable(searchedGroups);
+      mapLayer = L.geoJSON({ type: "FeatureCollection", features: feats }, {
+        style: f => {
+          const ps = (f.properties.project_ids || []).filter(id => ids.has(id)).map(id => BY_ID[id]);
+          if (!ps.length) return { color: "#64748b", weight: 3, opacity: 0.8, dashArray: "4 4" };
+          const active = ps.find(p => !p.is_complete);
+          return { color: active ? MS_COLORS[active.latest_milestone || "none"] : COMPLETE_COLOR, weight: 5, opacity: 0.9 };
+        },
+        pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 6 }),
+        onEachFeature: (f, layer) => {
+          const ps = (f.properties.project_ids || []).filter(id => ids.has(id)).map(id => BY_ID[id]);
+          ps.forEach(p => { featureLayers[p.id] = layer; });
+          layer.bindPopup(`<div style="font-family:'Plus Jakarta Sans',sans-serif"><strong style="color:#002855">${esc(f.properties.label)}</strong><br><span style="color:#64748b">${esc(f.properties.description || "")}</span>` +
+            (ps.length ? "<hr style='margin:6px 0;border-color:#e2e8f0'>" + ps.map(p => `<a href="#" data-open="${esc(p.id)}" style="color:#002855;font-weight:700">${esc(p.name)}</a><br><span style="color:#64748b">${esc(p.manager)} · ${p.is_complete ? "Complete" : esc(msName(p.latest_milestone))}</span>`).join("<br>")
+              : "<br><em>No project in the sheet uses this number.</em>") + "</div>");
+        }
+      }).addTo(map);
+      const key = JSON.stringify(F);
+      if (feats.length && renderMap.last !== key) {
+        const b = mapLayer.getBounds();
+        if (b.isValid()) map.fitBounds(b, { padding: [16, 16], maxZoom: 13 });
+      }
+      renderMap.last = key;
+      const noLine = rows.filter(p => !p.is_complete && !p.on_map).length;
+      $("#map-caption").textContent = `${plural(feats.filter(f => (f.properties.project_ids || []).length).length, "line")} shown. ${noLine ? plural(noLine, "active project") + " in view " + (noLine === 1 ? "has" : "have") + " no line in the coordinates file." : ""}`;
     }
 
-    function applyFilters() {
-      const pm = document.getElementById('filter-pm').value;
-      const status = document.getElementById('filter-status').value;
-      const fmisStatus = document.getElementById('filter-fmis') ? document.getElementById('filter-fmis').value : 'ALL';
-      const selectedType = document.getElementById('filter-type') ? document.getElementById('filter-type').value.trim().toUpperCase() : 'ALL';
-      const selectedCounty = document.getElementById('filter-county') ? document.getElementById('filter-county').value : 'ALL';
-
-      currentFilteredGroups = allProgramGroups.filter(g => {
-        let matchesStatus = true;
-        if (status === 'Active') matchesStatus = !g.isCompleted;
-        else if (status === 'Completed') matchesStatus = g.isCompleted;
-
-        let matchesFMIS = (fmisStatus === 'ALL');
-        if (!matchesFMIS) {
-          matchesFMIS = g.fmisStatuses.has(fmisStatus);
+    // ----------------------------------------------------- portfolio grid
+    const pmStyleFor = idx => idx % 2 === 0 ? "bg-[#E6F0FA] text-[#002855] border-blue-200" : "bg-[#FFF8E6] text-[#B38200] border-amber-300";
+    function progressCell(pct, complete, small) {
+      if (pct == null) return `<span class="led-dot led-gray"></span><span class="text-[10px] text-slate-400 font-semibold whitespace-nowrap">Not entered</span>`;
+      const led = complete ? "led-navy" : "led-gold";
+      const bar = complete ? "bg-[#002855]" : (small ? "bg-[#B38200]" : "bg-[#EAAA00]");
+      return small
+        ? `<div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div class="${bar} h-1.5 rounded-full" style="width:${Math.min(100, pct)}%"></div></div>
+           <span class="font-mono font-bold text-[10px] text-slate-700 w-9 text-right">${Math.round(pct)}%</span>`
+        : `<span class="led-dot ${led}"></span>
+           <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200"><div class="${bar} h-2 rounded-full" style="width:${Math.min(100, pct)}%"></div></div>
+           <span class="font-mono font-bold text-[11px] text-[#002855] w-9 text-right">${Math.round(pct)}%</span>`;
+    }
+    function renderNativeTable(groups) {
+      const box = $("#native-table-rows");
+      if (!groups.length) { box.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs font-semibold">No matching program records found.</div>`; return; }
+      let html = "";
+      groups.forEach((g, idx) => {
+        const many = g.items.length > 1, open = expandedPrograms.has(g.key), p0 = g.lead;
+        const chevron = many ? `<button class="mr-1 text-[#002855] hover:text-[#EAAA00] font-black focus:outline-none transition-transform ${open ? "rotate-90" : ""}">▶</button>` : `<span class="w-3 inline-block"></span>`;
+        const tag = many ? `<span class="ml-1 px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-[#B38200] rounded-full border border-amber-300 cursor-pointer whitespace-nowrap">${g.items.length} Phases</span>` : "";
+        const click = many ? `data-toggle="${esc(g.key)}"` : `data-open="${esc(p0.id)}"`;
+        const sel = !many && selectedId === p0.id ? "bg-amber-50 border-[#EAAA00] ring-2 ring-[#EAAA00]/30" : "bg-white hover:bg-slate-50 border-slate-200";
+        html += `<div ${click} class="grid grid-cols-12 gap-2 px-4 py-2 rounded-xl border items-center text-xs text-slate-800 cursor-pointer shadow-sm ${sel}">
+          <div class="col-span-1 font-mono text-[#002855] font-bold flex items-center truncate">${chevron}<span class="truncate">${esc(g.programNum)}</span></div>
+          <div class="col-span-2 flex items-center min-w-0"><span class="font-mono text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200 text-[11px] truncate">${many ? "MASTER-GROUP" : esc(p0.state_number || "—")}</span>${tag}</div>
+          <div class="col-span-3 font-bold text-slate-900 truncate" title="${esc(p0.name)}">${esc(p0.name)}</div>
+          <div class="col-span-1 truncate"><span class="px-2 py-0.5 border rounded-full text-[10px] font-bold ${pmStyleFor(idx)}">${esc(p0.manager)}</span></div>
+          <div class="col-span-1 text-slate-600 font-semibold truncate">${esc(p0.county || "N/A")}</div>
+          <div class="col-span-1 font-mono text-[#002855] font-bold truncate" title="${formatCurrency(g.award)}">${formatCurrency(g.award)}</div>
+          <div class="col-span-1 text-slate-600 font-medium truncate" title="${esc(p0.consultant)}">${esc(p0.consultant || "—")}</div>
+          <div class="col-span-2 flex items-center space-x-2">${progressCell(g.avg, g.complete, false)}</div>
+        </div>`;
+        if (many && open) {
+          g.items.forEach(c => {
+            const cs = selectedId === c.id ? "bg-amber-50 border-[#EAAA00] ring-2 ring-[#EAAA00]/30" : "bg-slate-50/90 hover:bg-amber-50/50 border-slate-200";
+            html += `<div data-open="${esc(c.id)}" class="grid grid-cols-12 gap-2 px-4 py-1.5 ml-6 rounded-lg border items-center text-[11px] text-slate-700 transition-all cursor-pointer ${cs}">
+              <div class="col-span-1 font-mono text-slate-400 text-[10px] pl-2 border-l-2 border-amber-400 whitespace-nowrap">↳ Phase</div>
+              <div class="col-span-2 min-w-0"><span class="font-mono text-slate-800 font-bold bg-white px-2 py-0.5 rounded border border-slate-200 text-[10px] truncate inline-block max-w-full">${esc(c.state_number || "—")}</span></div>
+              <div class="col-span-3 font-semibold text-slate-800 truncate" title="${esc(c.name)}">${esc(c.name)}${c.award_year ? ` <span class="text-slate-400 font-medium">(${esc(c.award_year)})</span>` : ""}</div>
+              <div class="col-span-1 text-slate-500 font-bold truncate">${esc(c.manager)}</div>
+              <div class="col-span-1 text-slate-500 truncate">${esc(c.county || "N/A")}</div>
+              <div class="col-span-1 font-mono text-slate-900 font-bold truncate">${formatCurrency(c.award)}</div>
+              <div class="col-span-1 text-slate-500 truncate">${esc(c.consultant || "—")}</div>
+              <div class="col-span-2 flex items-center space-x-2">${progressCell(effPct(c), c.is_complete, true)}</div>
+            </div>`;
+          });
         }
-
-        let matchesPM = (pm === 'ALL');
-        if (!matchesPM) {
-          matchesPM = Array.from(g.pms).some(pName => pName.toLowerCase() === pm.toLowerCase());
-        }
-
-        let matchesType = (selectedType === 'ALL');
-        if (!matchesType) {
-          matchesType = g.types.has(selectedType);
-        }
-
-        let matchesCounty = (selectedCounty === 'ALL');
-        if (!matchesCounty) {
-          matchesCounty = g.counties.has(selectedCounty);
-        }
-
-        return matchesStatus && matchesFMIS && matchesPM && matchesType && matchesCounty;
       });
-
-      if (currentViewMode === 'cards') renderCardView(currentFilteredGroups);
-      else renderNativeTable(currentFilteredGroups);
-      
-      updatePipelineChart(currentFilteredGroups);
-      updateKPIs(currentFilteredGroups);
+      box.innerHTML = html;
     }
-
-    function onProjectRowClick(project) {
-      const pNum = (project.CLEAN_NUM || '').toUpperCase();
-      const pName = (project['PROJECT NAME'] || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-      
-      const layer = kmlFeatureMap[pNum] || kmlFeatureMap[pName];
-      if (layer) {
-        if (layer.getBounds) map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.2 });
-        else if (layer.getLatLng) map.flyTo(layer.getLatLng(), 15, { duration: 1.2 });
-      }
-
-      document.getElementById('drawer-title').innerText = project['PROJECT NAME'] || 'Project Details';
-      const consultant = (project.CONSULTANT && project.CONSULTANT !== 'NaN' && project.CONSULTANT !== 'null') ? project.CONSULTANT : 'Unassigned';
-      
-      let programNum = (project.PROGRAM_NUM_CLEAN && project.PROGRAM_NUM_CLEAN !== 'nan' && project.PROGRAM_NUM_CLEAN !== 'null') ? project.PROGRAM_NUM_CLEAN.toString().trim() : 'N/A';
-      if (programNum.endsWith('.0')) programNum = programNum.slice(0, -2);
-
-      let fmisBadgeClass = 'bg-slate-100 text-slate-700 border-slate-300';
-      let fmisBadgeText = 'FMIS N/A';
-
-      if (project.FMIS_STATUS === 'Active') {
-        fmisBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-        fmisBadgeText = 'FMIS Active';
-      } else if (project.FMIS_STATUS === 'Inactive') {
-        fmisBadgeClass = 'bg-red-100 text-red-800 border-red-300';
-        fmisBadgeText = 'FMIS Inactive';
-      }
-
-      const fmisBadge = `<span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full border ${fmisBadgeClass}">${fmisBadgeText}</span>`;
-
-      const content = `
-        <div class="bg-[#E6F0FA] p-3.5 rounded-xl border border-blue-200 grid grid-cols-2 gap-2 items-center">
+    function renderCardView(groups) {
+      const box = $("#card-view-container");
+      if (!groups.length) { box.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400">No matching projects.</div>`; return; }
+      box.innerHTML = groups.map((g, idx) => {
+        const p0 = g.lead;
+        const ms = g.complete ? '<span class="pill pill-green">Complete</span>' : `<span class="pill pill-blue">${esc(msName(p0.latest_milestone))}</span>`;
+        return `<div data-open="${esc(p0.id)}" class="executive-card p-3.5 rounded-xl border border-slate-200 hover:border-[#EAAA00] cursor-pointer flex flex-col justify-between space-y-3">
           <div>
-            <div class="text-[11px] text-slate-500 font-medium">State Project Number</div>
-            <div class="font-mono text-[#002855] font-bold text-sm">${project['STATE PROJECT NUMBER'] || 'N/A'}</div>
+            <div class="flex justify-between items-start mb-1.5 gap-2">
+              <span class="font-mono text-xs text-[#002855] font-bold bg-[#E6F0FA] px-2 py-0.5 rounded border border-blue-200">Prog #: ${esc(g.programNum)}</span>
+              <span class="px-2 py-0.5 text-[10px] rounded-full font-bold border ${pmStyleFor(idx + 1)}">${esc(p0.manager)}</span>
+            </div>
+            <h3 class="font-bold text-[#002855] text-sm leading-tight line-clamp-1 mb-1" title="${esc(p0.name)}">${esc(p0.name)}</h3>
+            <div class="text-[11px] text-slate-500">Phases: <strong class="text-slate-800 font-mono">${g.items.length}</strong> | County: <strong class="text-slate-800">${esc(p0.county || "N/A")}</strong></div>
+            <div class="mt-1.5">${ms}</div>
           </div>
-          <div class="text-right">
-            <div class="text-[11px] text-slate-500 font-medium mb-0.5">FMIS Accounting</div>
-            <div>${fmisBadge}</div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center text-xs"><span class="text-slate-500 font-medium">Average Progress</span>
+              <span class="font-mono text-[#002855] font-bold">${g.avg == null ? "Not entered" : g.avg + "%"}</span></div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200"><div class="bg-[#EAAA00] h-2 rounded-full" style="width:${g.avg || 0}%"></div></div>
           </div>
-        </div>
+          <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+            <div><span class="text-[10px] text-slate-400 block uppercase">Total Award</span><span class="font-mono text-[#002855] font-bold">${formatCurrency(g.award)}</span></div>
+            <div class="text-right"><span class="text-[10px] text-slate-400 block uppercase">Total Value</span><span class="font-mono text-[#B38200] font-extrabold">${formatCurrency(g.total)}</span></div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+    // One click handler for the whole page: open a project, or expand a program
+    document.addEventListener("click", e => {
+      const open = e.target.closest("[data-open]");
+      if (open) { e.preventDefault(); openDrawer(open.dataset.open); return; }
+      const tog = e.target.closest("[data-toggle]");
+      if (tog) {
+        const k = tog.dataset.toggle;
+        expandedPrograms.has(k) ? expandedPrograms.delete(k) : expandedPrograms.add(k);
+        renderNativeTable(currentGroups);
+      }
+    });
+    function applyMode() {
+      $("#btn-view-grid").classList.toggle("on", mode === "grid");
+      $("#btn-view-cards").classList.toggle("on", mode === "cards");
+      $("#grid-view-panel").classList.toggle("hidden", mode !== "grid");
+      $("#card-view-panel").classList.toggle("hidden", mode !== "cards");
+    }
+    function switchMode(m) { mode = m; applyMode(); if (view !== "portfolio") setView("portfolio"); else update(); }
 
+    // ------------------------------------------------------------ drawer
+    function openDrawer(id) {
+      const p = BY_ID[id]; if (!p) return;
+      if (selectedId === id && !$("#detail-drawer").classList.contains("translate-x-full")) { closeDrawer(); return; }
+      selectedId = id;
+      const layer = featureLayers[id];
+      if (layer && map) { if (layer.getBounds) map.flyToBounds(layer.getBounds(), { maxZoom: 15, duration: 1.0 }); else if (layer.getLatLng) map.flyTo(layer.getLatLng(), 15, { duration: 1.0 }); }
+      $("#drawer-title").textContent = p.name;
+      $("#drawer-sub").innerHTML = `${esc(p.tab)} tab, row ${p.row} · ${p.is_complete ? '<span class="pill pill-green">Complete</span>' : '<span class="pill pill-amber">Active</span>'}`;
+      const fmisBadge = p.fmis_status === "Inactive" ? '<span class="pill pill-red">FMIS Inactive</span>' :
+        p.fmis_status === "On list, active" ? '<span class="pill pill-green">FMIS On list, active</span>' : '<span class="pill pill-gray">Not on FMIS inactive list</span>';
+      const box = (label, value, mono) => `<div class="bg-slate-50 p-3 rounded-xl border border-slate-200 min-w-0"><span class="text-[11px] text-slate-500 block font-medium">${label}</span><span class="font-bold text-slate-900 break-words ${mono ? "font-mono" : ""}">${value === "" || value == null ? '<span class="text-slate-400 font-semibold">Not entered</span>' : value}</span></div>`;
+      const steps = MS.map(m => {
+        const s = p.milestones[m.key];
+        const [cls, txt] = s.state === "done" ? ["border-[#002855] bg-[#E6F0FA]", s.date ? fmtDate(s.date) : "Done"] :
+          s.state === "skipped" ? ["border-slate-200 border-dashed bg-white", "Does not apply"] :
+          s.state === "planned" ? ["border-amber-300 bg-[#FFF8E6]", "Planned " + fmtDate(s.date)] :
+          s.state === "unclear" ? ["border-red-300 bg-red-50", `Unclear: "${esc(s.text)}"`] : ["border-slate-200 bg-white", "Not yet"];
+        return `<div class="rounded-lg border-2 ${cls} p-2 text-[10.5px] min-w-0"><div class="font-extrabold text-[#002855] uppercase tracking-wide text-[9.5px]">${esc(m.label)}</div><div class="text-slate-700 font-semibold mt-0.5 break-words">${txt}</div></div>`;
+      }).join("");
+      const fmis = p.fmis.length ? `<div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2"><h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider">FMIS Inactive List</h4>
+        <table class="xtable"><thead><tr><th>FMIS #</th><th>Phase</th><th class="text-right">Obligated</th><th class="text-right">Not spent</th><th>End date</th></tr></thead><tbody>
+        ${p.fmis.map(r => `<tr><td class="font-mono">${esc(r.fmis_project)}${r.inactive ? ' <span class="pill pill-red">Inactive</span>' : ""}</td><td>${esc(r.phase)}</td><td class="num">${money0(r.obligated)}</td><td class="num">${money0(r.unexpended)}</td><td>${esc(r.ped)}</td></tr>`).join("")}
+        </tbody></table></div>` : "";
+      const iss = DATA.issues.filter(i => i.project_id === p.id);
+      const issues = iss.length ? `<div class="bg-amber-50 p-3.5 rounded-xl border border-amber-300 space-y-1.5"><h4 class="text-xs font-bold text-[#B38200] uppercase tracking-wider">To Fix in the Sheet</h4>
+        <ul class="text-xs text-slate-700 list-disc pl-4 space-y-0.5">${iss.map(i => `<li><b>${esc(i.field)}:</b> ${esc(i.problem)}</li>`).join("")}</ul></div>` : "";
+      $("#drawer-content").innerHTML = `
+        <div class="bg-[#E6F0FA] p-3.5 rounded-xl border border-blue-200 grid grid-cols-2 gap-2 items-center">
+          <div><div class="text-[11px] text-slate-500 font-medium">State Project Number</div><div class="font-mono text-[#002855] font-bold text-sm">${esc(p.state_number || "N/A")}</div></div>
+          <div class="text-right"><div class="text-[11px] text-slate-500 font-medium mb-0.5">FMIS Accounting</div><div>${fmisBadge}</div></div>
+        </div>
+        <div class="space-y-2"><h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Milestones</h4><div class="grid grid-cols-5 gap-1.5">${steps}</div></div>
         <div class="grid grid-cols-2 gap-3">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span class="text-[11px] text-slate-500 block font-medium">Project Manager</span>
-            <span class="font-bold text-[#002855]">${project.SOURCE_PM || 'Unassigned'}</span>
-          </div>
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span class="text-[11px] text-slate-500 block font-medium">Program Number</span>
-            <span class="font-bold text-slate-900 font-mono">${programNum}</span>
-          </div>
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span class="text-[11px] text-slate-500 block font-medium">County</span>
-            <span class="font-bold text-slate-900">${project.COUNTY || 'N/A'}</span>
-          </div>
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <span class="text-[11px] text-slate-500 block font-medium">Consultant</span>
-            <span class="font-bold text-slate-800">${consultant}</span>
-          </div>
+          ${box("Project Manager", esc(p.manager))}${box("Program Number", esc(p.program_number), true)}
+          ${box("Federal Project Number", esc(p.federal_number), true)}${box("Project Type", esc(p.project_type))}
+          ${box("Award Year", esc(p.award_year))}${box("District", esc(p.district || ""))}
+          ${box("County", esc(p.county))}${box("Consultant", esc(p.consultant))}
+          ${box("Completion Percentage", p.pct_complete == null ? "" : Math.round(p.pct_complete) + "%")}${box("Project Complete?", esc(p.complete_flag))}
         </div>
-
         <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
           <h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider border-b border-slate-200 pb-1.5">Financial Breakdown</h4>
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <div><span class="text-slate-500 block">Award Value:</span><span class="font-mono text-[#002855] font-bold">${formatCurrency(project.AWARD_CLEAN)}</span></div>
-            <div><span class="text-slate-500 block">Supplemental:</span><span class="font-mono text-blue-700 font-bold">${formatCurrency(project.SUPPLEMENTAL_CLEAN)}</span></div>
+            <div><span class="text-slate-500 block">Award Value:</span><span class="font-mono text-[#002855] font-bold">${p.award == null ? "Not entered" : formatCurrency(p.award)}</span></div>
+            <div><span class="text-slate-500 block">Supplemental:</span><span class="font-mono text-blue-700 font-bold">${formatCurrency(p.supplementals)}</span></div>
           </div>
           <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex justify-between items-center text-xs">
-            <span class="text-slate-700 font-semibold">Total Value (Award + Supp):</span>
-            <span class="font-mono text-[#B38200] font-extrabold text-sm">${formatCurrency(project.TOTAL_VALUE_CLEAN)}</span>
+            <span class="text-slate-700 font-semibold">Total Value (Award + Supp):</span><span class="font-mono text-[#B38200] font-extrabold text-sm">${formatCurrency(p.total)}</span>
           </div>
         </div>
-
         <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
           <h4 class="text-xs font-bold text-[#002855] uppercase tracking-wider">Latest Status Update</h4>
-          <p class="text-xs text-slate-600 leading-relaxed">${project['STATUS UPDATE'] || project['COMMENTS'] || 'No status updates logged.'}</p>
+          <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">${p.status_update ? esc(p.status_update) : "No status updates logged."}</p>
         </div>
-      `;
-
-      document.getElementById('drawer-content').innerHTML = content;
-      document.getElementById('detail-drawer').classList.remove('translate-x-full');
+        ${fmis}${issues}`;
+      $("#detail-drawer").classList.remove("translate-x-full");
+      if (view === "portfolio" && mode === "grid") renderNativeTable(currentGroups);
     }
-
     function closeDrawer() {
-      document.getElementById('detail-drawer').classList.add('translate-x-full');
-      selectedProjectNum = null;
-      renderNativeTable(currentFilteredGroups);
+      $("#detail-drawer").classList.add("translate-x-full");
+      selectedId = null;
+      if (view === "portfolio" && mode === "grid") renderNativeTable(currentGroups);
+    }
+    $("#drawer-close").addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+    // -------------------------------------------------------- data issues
+    function issueRows() {
+      const field = $("#issue-field").value;
+      return DATA.issues.filter(i => (!F.mgr || (i.manager || i.tab) === F.mgr) && (!field || i.field === field));
+    }
+    function renderIssues() {
+      const rows = issueRows();
+      const by = {};
+      rows.forEach(i => { const k = i.manager || i.tab; by[k] = (by[k] || 0) + 1; });
+      $("#issue-summary").innerHTML = rows.length ? `<strong class="text-[#002855]">${plural(rows.length, "issue")}</strong> · ` +
+        Object.entries(by).sort((a, b) => b[1] - a[1]).map(([m, n]) => `${esc(m)} <span class="font-mono font-bold">${n}</span>`).join(" · ") : "";
+      if (!rows.length) { $("#issue-table").innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-semibold">No data issues for this selection.</div>'; return; }
+      rows.sort((a, b) => (a.manager || a.tab).localeCompare(b.manager || b.tab) || a.tab.localeCompare(b.tab) || a.row - b.row);
+      $("#issue-table").innerHTML = `<table class="xtable"><thead><tr><th>Manager</th><th>Sheet Tab</th><th class="text-right">Row</th><th>Project</th><th>Field</th><th>What to Fix</th></tr></thead><tbody>` +
+        rows.map(i => `<tr${i.project_id ? ` class="click" data-open="${esc(i.project_id)}"` : ""}><td class="font-bold text-[#002855]">${esc(i.manager || i.tab)}</td><td>${esc(i.tab)}</td><td class="num">${i.row}</td><td class="font-semibold">${esc(i.project) || '<span class="text-slate-400">Whole tab</span>'}</td><td><span class="pill pill-amber">${esc(i.field)}</span></td><td class="text-slate-600">${esc(i.problem)}</td></tr>`).join("") + `</tbody></table>`;
+    }
+    function setupIssues() {
+      const fields = uniq(DATA.issues.map(i => i.field)).sort();
+      $("#issue-field").innerHTML = `<option value="">All problems</option>` + fields.map(f => `<option value="${esc(f)}">${esc(f)} (${DATA.issues.filter(i => i.field === f).length})</option>`).join("");
+      $("#issue-field").addEventListener("change", renderIssues);
+      $("#btn-issues-export").addEventListener("click", () => exportRows("TA-RT data issues",
+        issueRows().map(i => ({ "Manager": i.manager || i.tab, "Sheet Tab": i.tab, "Row": i.row, "Project": i.project, "Field": i.field, "What to Fix": i.problem }))));
     }
 
-    function formatCurrency(val) {
-      const num = parseFloat(val) || 0;
-      return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function updateKPIs(groups) {
-      let awarded = 0, totalValue = 0, totalSupp = 0;
-      let activeGroups = 0, completedGroups = 0;
-
-      groups.forEach(g => {
-        awarded += g.totalAward || 0;
-        totalValue += g.totalValue || 0;
-        totalSupp += g.totalSupplemental || 0;
-
-        if (g.isCompleted) completedGroups++;
-        else activeGroups++;
+    // ----------------------------------------------------------- managers
+    function renderManagers(rows) {
+      const g = {};
+      rows.forEach(p => {
+        const m = g[p.manager] || (g[p.manager] = { m: p.manager, a: 0, d: 0, money: 0, mix: {} });
+        if (p.is_complete) m.d++; else { m.a++; m.money += p.total; const k = p.latest_milestone || "none"; m.mix[k] = (m.mix[k] || 0) + 1; }
       });
-
-      animateCounter('kpi-awarded', currentKpiValues.awarded, awarded, true);
-      animateCounter('kpi-total-value', currentKpiValues.totalValue, totalValue, true);
-      animateCounter('kpi-total-supp', currentKpiValues.totalSupp, totalSupp, true);
-
-      animateCounter('kpi-active-count', currentKpiValues.active, activeGroups, false);
-      animateCounter('kpi-completed-count', currentKpiValues.completed, completedGroups, false);
-      animateCounter('kpi-total-count', currentKpiValues.total, groups.length, false);
-
-      currentKpiValues = { awarded, totalValue, totalSupp, active: activeGroups, completed: completedGroups, total: groups.length };
+      const iss = {}; DATA.issues.forEach(i => { const k = i.manager || i.tab; iss[k] = (iss[k] || 0) + 1; });
+      const list = Object.values(g).sort((a, b) => b.a - a.a || a.m.localeCompare(b.m));
+      const keys = ["none", ...MS.map(m => m.key)];
+      if (!list.length) { $("#mgr-table").innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-semibold">No matching projects.</div>'; return; }
+      $("#mgr-table").innerHTML = `<table class="xtable"><thead><tr><th>Manager</th><th class="text-right">Active</th><th class="text-right">Complete</th><th class="text-right">Active Money</th><th>Where Active Projects Are</th><th class="text-right">Data Issues</th></tr></thead><tbody>` +
+        list.map((m, idx) => `<tr class="click" data-mgr="${esc(m.m)}"><td><span class="px-2 py-0.5 border rounded-full text-[10px] font-bold ${pmStyleFor(idx)}">${esc(m.m)}</span></td><td class="num">${m.a}</td><td class="num">${m.d}</td><td class="num">${formatCurrency(m.money)}</td>
+          <td><div class="flex h-3 min-w-[140px] rounded-full overflow-hidden bg-slate-100 border border-slate-200" title="${keys.filter(k => m.mix[k]).map(k => `${k === "none" ? "No milestone yet" : MS_LABEL[k]}: ${m.mix[k]}`).join(", ")}">${keys.map(k => m.mix[k] ? `<span style="width:${m.mix[k] / m.a * 100}%;background:${MS_COLORS[k]}"></span>` : "").join("")}</div></td>
+          <td class="num">${iss[m.m] || 0}</td></tr>`).join("") + `</tbody></table>`;
+      $("#mgr-legend").innerHTML = keys.map(k => `<span class="flex items-center gap-1"><span class="inline-block w-3 h-2 rounded-sm" style="background:${MS_COLORS[k]}"></span>${k === "none" ? "No milestone yet" : esc(MS_LABEL[k])}</span>`).join("");
+      $("#mgr-table").querySelectorAll("tr[data-mgr]").forEach(tr => tr.addEventListener("click", () => { F.mgr = tr.dataset.mgr; syncInputs(); setView("portfolio"); }));
     }
+
+    // --------------------------------------------------------------- FMIS
+    function fmisLines(rows) {
+      const out = [];
+      rows.forEach(p => p.fmis.forEach(r => { const d = parseUSDate(r.ped); out.push({ p, r, days: d ? Math.round((d - TODAY) / 864e5) : null }); }));
+      return out;
+    }
+    function renderFmis(rows) {
+      let list = fmisLines(rows);
+      if ($("#fmis-soon").checked) list = list.filter(x => x.days != null && x.days <= 90);
+      list.sort((a, b) => (a.days ?? 1e9) - (b.days ?? 1e9));
+      const past = list.filter(x => x.days != null && x.days < 0).length, soon = list.filter(x => x.days != null && x.days >= 0 && x.days <= 90).length;
+      $("#fmis-summary").innerHTML = `<strong class="text-[#002855]">${plural(list.length, "FMIS line")}</strong><span>${formatCurrency(list.reduce((a, x) => a + (x.r.unexpended || 0), 0))} not yet spent</span>
+        <span class="pill pill-red">${past} past end date</span><span class="pill pill-amber">${soon} ending within 90 days</span>`;
+      if (!list.length) { $("#fmis-table").innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-semibold">No projects in view are on the FMIS inactive list.</div>'; return; }
+      $("#fmis-table").innerHTML = `<table class="xtable"><thead><tr><th>Project</th><th>PM</th><th>FMIS #</th><th>Phase</th><th>Inactive</th><th class="text-right">Obligated</th><th class="text-right">Spent</th><th class="text-right">Not Spent</th><th>End Date</th><th class="text-right">Days Left</th></tr></thead><tbody>` +
+        list.map(({ p, r, days }) => `<tr class="click" data-open="${esc(p.id)}"><td><div class="font-bold text-slate-900">${esc(p.name)}</div><div class="font-mono text-[10px] text-slate-500">${esc(p.state_number)}</div></td><td>${esc(p.manager)}</td>
+          <td class="font-mono">${esc(r.fmis_project)}</td><td>${esc(r.phase)}</td><td>${r.inactive ? '<span class="pill pill-red">Yes</span>' : '<span class="pill pill-gray">No</span>'}</td>
+          <td class="num">${money0(r.obligated)}</td><td class="num">${money0(r.expended)}</td><td class="num">${money0(r.unexpended)}</td><td class="font-mono">${esc(r.ped)}</td>
+          <td class="num">${days == null ? "" : days < 0 ? `<span class="pill pill-red">${-days} days past</span>` : days <= 90 ? `<span class="pill pill-amber">${days}</span>` : days}</td></tr>`).join("") + `</tbody></table>`;
+    }
+    $("#fmis-soon").addEventListener("change", () => renderFmis(ALL.filter(p => matches(p))));
+
+    // ------------------------------------------------------------- trends
+    function renderTrends(rows) {
+      const g = {}; let noYear = 0;
+      rows.forEach(p => {
+        const y = p.award_years[0]; if (!y) { noYear++; return; }
+        const e = g[y] || (g[y] = { y, done: 0, active: 0, n: 0, nd: 0 });
+        e.n++; if (p.is_complete) { e.done += p.total; e.nd++; } else e.active += p.total;
+      });
+      const list = Object.values(g).sort((a, b) => a.y - b.y);
+      $("#trend-note").textContent = noYear ? `${plural(noYear, "project")} with no award year not shown` : "";
+      if (typeof Chart !== "undefined") {
+        const data = { labels: list.map(e => String(e.y)), datasets: [
+          { label: "Active", data: list.map(e => e.active), backgroundColor: "#002855", borderRadius: 4 },
+          { label: "Complete", data: list.map(e => e.done), backgroundColor: "#EAAA00", borderRadius: 4 }] };
+        if (!trendChart) {
+          trendChart = new Chart($("#trendChart").getContext("2d"), { type: "bar", data, options: {
+            responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
+            plugins: { legend: { position: "top", align: "end", labels: { boxWidth: 12, font: { family: "Plus Jakarta Sans", weight: "700", size: 11 }, color: "#002855" } },
+              tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${money0(c.raw)}` } } },
+            scales: { x: { stacked: true, ticks: { color: "#002855", font: { family: "Plus Jakarta Sans", size: 10, weight: "700" } }, grid: { display: false } },
+              y: { stacked: true, beginAtZero: true, ticks: { color: "#64748b", callback: v => "$" + (v / 1e6).toFixed(1) + "M" }, grid: { color: "#e2e8f0" } } } } });
+        } else { trendChart.data = data; trendChart.update(); }
+      }
+      $("#trend-table").innerHTML = list.length ? `<table class="xtable"><thead><tr><th>Award Year</th><th class="text-right">Projects</th><th class="text-right">Complete</th><th class="text-right">Active Money</th><th class="text-right">Complete Money</th><th class="text-right">Total</th></tr></thead><tbody>` +
+        list.slice().reverse().map(e => `<tr><td class="font-bold text-[#002855]">${e.y}</td><td class="num">${e.n}</td><td class="num">${e.nd}</td><td class="num">${formatCurrency(e.active)}</td><td class="num">${formatCurrency(e.done)}</td><td class="num">${formatCurrency(e.active + e.done)}</td></tr>`).join("") + `</tbody></table>`
+        : '<div class="text-center py-10 text-slate-400 text-xs font-semibold">No projects with an award year match these filters.</div>';
+    }
+
+    // ------------------------------------------------------------- export
+    function exportRows(name, rows) {
+      if (!rows.length) { toast("Nothing to export"); return; }
+      const stamp = new Date().toISOString().slice(0, 10);
+      if (typeof XLSX !== "undefined") {
+        const ws = XLSX.utils.json_to_sheet(rows);
+        ws["!cols"] = Object.keys(rows[0]).map(k => ({ wch: Math.min(48, Math.max(10, k.length + 2)) }));
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
+        XLSX.writeFile(wb, `${name} ${stamp}.xlsx`);
+      } else {   // Excel library did not load: CSV opens in Excel too
+        const cols = Object.keys(rows[0]);
+        const csv = [cols.join(","), ...rows.map(r => cols.map(c => `"${String(r[c] ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
+        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
+        a.download = `${name} ${stamp}.csv`; a.click();
+      }
+    }
+    function exportProjects() {
+      exportRows("TA-RT projects", ALL.filter(p => matches(p)).map(p => {
+        const r = { "Project Name": p.name, "Program Number": p.program_number, "State Project Number": p.state_number, "Federal Project Number": p.federal_number,
+          "Project Type": p.project_type, "Award Year": p.award_year, "District": p.district || "", "County": p.county, "Award": p.award, "Supplementals": p.supplementals,
+          "Award + Supplementals": p.total, "Consultant": p.consultant, "Project Manager": p.manager };
+        MS.forEach(m => { const s = p.milestones[m.key]; r[m.label] = s.date || s.text || ""; });
+        return Object.assign(r, { "Completion %": p.pct_complete, "Project Complete?": p.complete_flag, "Status": p.is_complete ? "Complete" : "Active",
+          "Furthest Milestone": p.is_complete ? "" : msName(p.latest_milestone), "FMIS": p.fmis_status, "On Map": p.on_map ? "Yes" : "No",
+          "Status Update": p.status_update, "Sheet Tab": p.tab, "Sheet Row": p.row });
+      }));
+    }
+
+    // ---------------------------------------------------- print summary
+    function printSummary() {
+      const rows = ALL.filter(p => matches(p)), active = rows.filter(p => !p.is_complete);
+      const sum = (rs, k) => rs.reduce((a, p) => a + (p[k] || 0), 0);
+      const mg = {}; rows.forEach(p => { const m = mg[p.manager] || (mg[p.manager] = { a: 0, d: 0, money: 0 }); if (p.is_complete) m.d++; else { m.a++; m.money += p.total; } });
+      const risk = fmisLines(active).filter(x => x.days != null && x.days <= 90).sort((a, b) => a.days - b.days).slice(0, 8);
+      const f = describeFilters();
+      const kpi = (l, v) => `<div class="border border-slate-300 rounded-lg p-2 text-center"><div class="text-[9px] font-bold uppercase text-slate-500">${l}</div><div class="text-base font-extrabold text-[#002855]">${v}</div></div>`;
+      $("#print-summary").innerHTML = `
+        <div class="flex items-center gap-3 border-b-2 border-[#EAAA00] pb-2 mb-3"><div class="bg-[#002855] text-[#EAAA00] font-black px-2 py-1 rounded">WV</div>
+          <div><div class="text-lg font-extrabold text-[#002855]">TA/RT Programs Summary</div><div class="text-[11px] text-slate-500">Printed ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · ${f.length ? "Filters: " + esc(f.join(", ")) : "All projects"}</div></div></div>
+        <div class="grid grid-cols-5 gap-2 mb-3">${kpi("Total Awarded", millions(sum(rows, "award")))}${kpi("Portfolio Value", millions(sum(rows, "total")))}${kpi("Supplementals", millions(sum(rows, "supplementals")))}${kpi("Active Projects", active.length)}${kpi("Completed Projects", rows.length - active.length)}</div>
+        <h3 class="font-bold text-[#002855] text-xs uppercase mb-1">Active projects by furthest milestone</h3>
+        <table class="xtable mb-3"><thead><tr><th>Milestone</th><th class="text-right">Projects</th><th class="text-right">Money</th></tr></thead><tbody>
+        ${[null, ...MS.map(m => m.key)].map(k => { const rs = active.filter(p => p.latest_milestone === k); return `<tr><td>${esc(msName(k))}</td><td class="num">${rs.length}</td><td class="num">${money0(sum(rs, "total"))}</td></tr>`; }).join("")}</tbody></table>
+        <h3 class="font-bold text-[#002855] text-xs uppercase mb-1">By manager</h3>
+        <table class="xtable mb-3"><thead><tr><th>Manager</th><th class="text-right">Active</th><th class="text-right">Complete</th><th class="text-right">Active Money</th></tr></thead><tbody>
+        ${Object.entries(mg).sort((a, b) => b[1].a - a[1].a).map(([m, v]) => `<tr><td>${esc(m)}</td><td class="num">${v.a}</td><td class="num">${v.d}</td><td class="num">${money0(v.money)}</td></tr>`).join("")}</tbody></table>
+        ${risk.length ? `<h3 class="font-bold text-[#002855] text-xs uppercase mb-1">FMIS end dates within 90 days or past</h3><table class="xtable"><thead><tr><th>Project</th><th>PM</th><th class="text-right">Not Spent</th><th>End Date</th></tr></thead><tbody>
+        ${risk.map(x => `<tr><td>${esc(x.p.name)}</td><td>${esc(x.p.manager)}</td><td class="num">${money0(x.r.unexpended)}</td><td>${esc(x.r.ped)}${x.days < 0 ? " (past)" : ""}</td></tr>`).join("")}</tbody></table>` : ""}
+        <p class="text-[10px] text-slate-500 mt-3">${plural(DATA.issues.length, "data issue")} are listed on the dashboard's Data Issues view.</p>`;
+      window.print();
+    }
+
+    // ------------------------------------------------ splitter and snaps
+    function initSplitter() {
+      const handle = $("#drag-handle"), panel = $("#map-panel"), main = $("#main-container");
+      let dragging = false;
+      handle.addEventListener("mousedown", () => { dragging = true; document.body.style.cursor = "col-resize"; document.body.classList.add("select-none"); });
+      document.addEventListener("mousemove", e => {
+        if (!dragging) return;
+        const r = main.getBoundingClientRect();
+        const pct = Math.min(65, Math.max(12, (e.clientX - r.left) / r.width * 100));
+        panel.style.width = pct + "%"; if (map) map.invalidateSize();
+      });
+      document.addEventListener("mouseup", () => { if (!dragging) return; dragging = false; document.body.style.cursor = ""; document.body.classList.remove("select-none"); if (map) map.invalidateSize(); });
+      document.querySelectorAll("[data-snap]").forEach(b => b.addEventListener("click", () => {
+        panel.style.transition = "width 0.25s cubic-bezier(0.16, 1, 0.3, 1)"; panel.style.width = b.dataset.snap + "%";
+        setTimeout(() => { if (map) map.invalidateSize(); panel.style.transition = ""; }, 300);
+      }));
+    }
+
+    // -------------------------------------------------- views and update
+    function renderTabs() {
+      $("#view-tabs").innerHTML = VIEWS.map(v => `<button class="tab-btn ${v.key === view ? "on" : ""}" data-v="${v.key}">${v.label}${v.count ? `<span class="cnt">${v.count}</span>` : ""}</button>`).join("");
+      $("#view-tabs").querySelectorAll("button").forEach(b => b.addEventListener("click", () => setView(b.dataset.v)));
+    }
+    function setView(v) {
+      view = v; renderTabs();
+      document.querySelectorAll(".view-pane").forEach(p => p.classList.toggle("hidden", p.dataset.view !== v));
+      update();
+    }
+    function update() {
+      const rows = ALL.filter(p => matches(p));
+      currentGroups = groupPrograms(rows);
+      updateKPIs(rows, currentGroups);
+      updatePipeline();
+      renderMap(rows);
+      if (view === "portfolio") {
+        const label = F.status === "complete" ? "Completed " : F.status === "active" ? "Active " : "";
+        $("#view-title").textContent = `${label}Program Portfolio · ${plural(currentGroups.length, "program")}, ${plural(rows.length, "project")}`;
+        if (mode === "grid") renderNativeTable(currentGroups); else renderCardView(currentGroups);
+      }
+      if (view === "issues") renderIssues();
+      if (view === "managers") renderManagers(rows);
+      if (view === "fmis") renderFmis(rows);
+      if (view === "trends") renderTrends(rows);
+      writeHash();
+    }
+
+    // --------------------------------------------------------------- init
+    readHash();
+    setupFilters();
+    setupIssues();
+    syncInputs();
+    renderSync();
+    initMap();
+    initChart();
+    initSplitter();
+    $("#btn-view-grid").addEventListener("click", () => switchMode("grid"));
+    $("#btn-view-cards").addEventListener("click", () => switchMode("cards"));
+    applyMode();
+    setView(view);
+  })();
   </script>
 </body>
 </html>
