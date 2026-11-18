@@ -1,6 +1,6 @@
 // Written by auto_sync.py. Do not edit by hand.
 window.SYNC_STATUS = {
-  "synced_at": "2026-11-12T17:52:14Z",
+  "synced_at": "2026-11-18T15:52:47Z",
   "all_ok": true,
   "build_ok": true,
   "tabs": [
@@ -8,7 +8,7 @@ window.SYNC_STATUS = {
       "tab": "FMIS inactive list",
       "file": "Inactive_120PED_Inactive.csv",
       "ok": true,
-      "rows": 340,
+      "rows": 338,
       "note": ""
     },
     {
