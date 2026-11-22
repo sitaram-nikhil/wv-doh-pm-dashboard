@@ -1,15 +1,15 @@
 // Written by auto_sync.py. Do not edit by hand.
 window.SYNC_STATUS = {
-  "synced_at": "2026-11-22T05:54:38Z",
-  "all_ok": true,
+  "synced_at": "2026-11-22T14:20:51Z",
+  "all_ok": false,
   "build_ok": true,
   "tabs": [
     {
       "tab": "FMIS inactive list",
       "file": "Inactive_120PED_Inactive.csv",
-      "ok": true,
-      "rows": 337,
-      "note": ""
+      "ok": false,
+      "rows": null,
+      "note": "the file has no 'Inactive Y/N' column (wrong tab or the header row moved); showing the last good copy"
     },
     {
       "tab": "Cameron",
