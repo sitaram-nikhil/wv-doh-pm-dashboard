@@ -1,6 +1,6 @@
 // Written by auto_sync.py. Do not edit by hand.
 window.SYNC_STATUS = {
-  "synced_at": "2026-11-22T23:25:56Z",
+  "synced_at": "2026-11-23T06:43:58Z",
   "all_ok": false,
   "build_ok": true,
   "tabs": [
